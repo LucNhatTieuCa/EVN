@@ -18,3 +18,9 @@ Phiên bản chuẩn bị: 2026.10.28.3; domain npc. Nguồn bàn giao: bản HA
 CPC, tự tìm mã liên kết, sensor và EVN Monitor; lưu lịch sử/PDF theo checkpoint, hàng đợi request dùng chung, đối chiếu Electric tùy chọn. Không hỗ trợ tất cả miền EVN; không cam kết lịch sử/PDF mà nhà cung cấp không trả về.
 
 Các test ngoại tuyến dùng boundary HA/HTTP giả lập; không thay thế nghiệm thu Home Assistant thật. Commit SHA và trạng thái CI xem trực tiếp trên GitHub. Chưa có nghiệm thu HA sạch hoặc phát hành release.
+
+## Phạm vi CI
+
+Workflow kiểm tra custom repository. HACS Action bỏ riêng check `license` vì chưa xác minh được giấy phép nguồn kế thừa; giữ giấy phép vendor và ghi nguồn, không tự gán giấy phép OSI. Mỗi run hiện cảnh báo và ghi giới hạn này trong job summary. CI xanh không xác nhận giấy phép hoặc điều kiện đưa vào hacs/default. Các check khác, gồm topics, vẫn chạy.
+
+Quy cách action: https://www.hacs.xyz/docs/publish/action/ .

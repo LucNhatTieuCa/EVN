@@ -27,3 +27,10 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
+          # Inherited source license is unverified; do not invent an OSI license.
+          # Custom-repository validation only; not eligibility for hacs/default.
+          ignore: license
+      - name: Disclose pending source license
+        run: |
+          echo "::warning::Source license remains unverified. HACS license check is explicitly skipped; default catalog eligibility is not established."
+          echo "HACS custom-repository checks exclude license. Inherited source licensing remains unresolved; see docs/RELEASE.md." >> "$GITHUB_STEP_SUMMARY"

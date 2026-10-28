@@ -2,7 +2,8 @@
   "domain": "npc",
   "name": "EVN VN",
   "after_dependencies": [
-    "http"
+    "http",
+    "recorder"
   ],
   "codeowners": [
     "@LucNhatTieuCa"
@@ -14,5 +15,8 @@
   "version": "2026.10.28.3",
   "integration_type": "service",
   "documentation": "https://github.com/LucNhatTieuCa/EVN#readme",
-  "issue_tracker": "https://github.com/LucNhatTieuCa/EVN/issues"
+  "issue_tracker": "https://github.com/LucNhatTieuCa/EVN/issues",
+  "categories": [
+    "energy.meters_monitoring"
+  ]
 }
