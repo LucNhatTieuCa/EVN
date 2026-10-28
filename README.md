@@ -4,6 +4,20 @@ Source by SmartBlackHome - Custom by LucNhatTieuCa
 
 Theo dõi điện EVN CPC miền Trung trong Home Assistant, cài qua HACS và không cần add-on. Hỗ trợ mã khách hàng bắt đầu bằng `PC`; chưa hỗ trợ các miền khác.
 
+## Hình ảnh minh họa
+
+Ảnh được dựng từ giao diện của integration với **dữ liệu giả lập**, không chứa tài khoản, số liệu điện hay hóa đơn cá nhân.
+
+**Tổng quan và biểu đồ điện năng theo tháng/ngày**
+
+![Tổng quan và biểu đồ EVN với dữ liệu minh họa](docs/images/overview-demo.png)
+
+**Điện năng, tiền nợ, lịch mất điện và bố cục xem hóa đơn**
+
+Tài liệu trong ảnh là mẫu dựng minh họa, không phải hóa đơn EVN phát hành và không có giá trị thanh toán.
+
+![Dịch vụ EVN và khung hóa đơn minh họa](docs/images/invoice-demo.png)
+
 ## Cài đặt
 
 Yêu cầu Home Assistant 2026.10 trở lên. Trong HACS, thêm URL `https://github.com/LucNhatTieuCa/EVN` ở **Custom repositories**, loại **Integration**, tải EVN VN và khởi động lại Home Assistant. Vào **Cài đặt → Thiết bị & dịch vụ → Thêm tích hợp → EVN VN**, nhập tài khoản EVN.
