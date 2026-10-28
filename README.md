@@ -66,3 +66,12 @@ PDF.js, Chart.js, Tailwind CSS và Font Awesome được đóng gói kèm phiên
 - [Trạng thái và checklist phát hành](docs/RELEASE.md)
 
 Từ bản 2026.10.28.5, domain và thư mục chương trình là `evn`. Nếu đang dùng domain `npc`, xem hướng dẫn chuyển đổi trong INSTALL.md trước khi nâng cấp. Repository private không dùng được với HACS; cần repository công khai để cài qua Custom repositories.
+
+
+## Tiến trình khởi tạo
+
+EVN Monitor có khung **Đồng bộ dữ liệu** riêng cho mã đang xem và tổng số PDF của các mã đã cấu hình. Khung hiển thị giai đoạn, số PDF đã lưu/tổng/còn thiếu, phần trăm PDF đã lưu, số bản ghi tháng/ngày, thời điểm cập nhật và thời gian thử lại nếu nguồn tạm nghỉ. Tổng dữ liệu chưa xác định được để trống; PDF EVN chưa cung cấp không được tính là đã tải. Không thể biết trước tổng lịch sử ngày mà nguồn còn giữ, nên phần trăm chỉ áp dụng cho danh mục PDF đã xác định.
+
+Mỗi mã có hai sensor chẩn đoán **Đồng bộ dữ liệu** và **Tiến độ tải PDF**. Thuộc tính ghi số đã lưu/còn thiếu, giai đoạn, lỗi và mốc thử lại. Dữ liệu lịch sử cập nhật lên sensor sau từng đợt, độc lập với quá trình tải PDF. Theo dõi tiến trình chỉ đọc SQLite tại HA, không tăng lượt truy vấn EVN; lịch truy vấn điện năng bốn giờ được giữ.
+
+Khung tiến trình tự ẩn khi mã đang xem đã hoàn tất xử lý dữ liệu có thể tải. Khung hiện lại khi có việc mới hoặc lỗi/tạm nghỉ; các sensor chẩn đoán vẫn được giữ. PDF nguồn không cung cấp vẫn được ghi riêng, không tính là đã tải.

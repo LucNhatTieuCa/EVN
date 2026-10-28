@@ -25,7 +25,7 @@ def ensure_database(path=None):
         db.execute("CREATE TABLE IF NOT EXISTS npc_pdf_attempts(invoice_row_id INTEGER PRIMARY KEY,status TEXT NOT NULL,retry_after TEXT,checked_at TEXT NOT NULL)")
         db.execute('CREATE TABLE IF NOT EXISTS npc_entity_ids(unique_id TEXT PRIMARY KEY,entity_id TEXT NOT NULL)')
         columns={row[1] for row in db.execute('PRAGMA table_info(npc_sync_state)')}
-        for name,definition in [('history_empty_windows','INTEGER DEFAULT 0'),('history_first_day','TEXT'),('monthly_cursor','INTEGER')]:
+        for name,definition in [('history_empty_windows','INTEGER DEFAULT 0'),('history_first_day','TEXT'),('monthly_cursor','INTEGER'),('history_updated_at','TEXT'),('history_retry_at','TEXT'),('history_window_start','TEXT'),('history_window_end','TEXT')]:
             if name not in columns:db.execute('ALTER TABLE npc_sync_state ADD COLUMN '+name+' '+definition)
         db.execute('INSERT OR IGNORE INTO npc_schema VALUES(?,?)',(SCHEMA_VERSION,datetime.now(TZ).isoformat()))
 

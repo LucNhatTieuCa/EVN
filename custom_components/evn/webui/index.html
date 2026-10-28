@@ -183,6 +183,18 @@
                 </div>
             </div>
         </div>
+        <section id="syncProgress" class="card evn-sync-card" hidden aria-label="Tiến trình đồng bộ EVN">
+          <header><h3>Đồng bộ dữ liệu</h3><span id="syncPhase" role="status">Đang chuẩn bị…</span></header>
+          <p id="syncCustomer" class="sync-caption"></p>
+          <div class="sync-pdf-heading"><span>PDF hóa đơn</span><strong id="syncPercent">Đang xác định</strong></div>
+          <progress id="syncBar" max="100" aria-label="Tỷ lệ PDF đã lưu"></progress>
+          <div class="sync-counts"><div><small>Đã lưu</small><strong id="syncDownloaded">—</strong></div><div><small>Tổng hóa đơn</small><strong id="syncTotal">—</strong></div><div><small>Còn thiếu PDF</small><strong id="syncRemaining">—</strong></div></div>
+          <p id="syncRecords" class="sync-caption"></p>
+          <p id="syncMessage" class="sync-message" aria-live="polite"></p>
+          <p id="syncOverall" class="sync-caption"></p>
+          <small id="syncUpdated" class="sync-caption"></small>
+        </section>
+
         <section id="meterComparison" class="card meter-comparison" aria-label="So sánh Electric Meter với EVN">
           <div class="meter-heading"><div><h3>Điện năng · EVN và Electric Meter</h3><small id="meterAccountLabel">Số liệu tháng/ngày, ghi rõ mốc đọc và thời điểm đồng bộ</small></div><button type="button" id="meterRefreshBtn" class="btn">Làm mới</button></div>
           <div id="meterValues" class="meter-values">Đang tải bộ đếm…</div>
@@ -407,6 +419,7 @@
     <!-- Đảm bảo KHÔNG có bất kỳ lệnh nào như showConfigModal() hoặc document.getElementById('configModal').classList.remove('hidden') chạy khi load trang. -->
     <script src="assets/js/invoice-pdf.js?v=20261027-opt1"></script>
 <footer style="text-align:center;padding:12px;opacity:.7">Source by SmartBlackHome - Custom by LucNhatTieuCa</footer>
+    <script src="assets/js/sync-progress.js?v=20261028-progress2"></script>
 </body>
 
 </html>

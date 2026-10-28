@@ -169,6 +169,7 @@ class MeterManager:
         self.hass.http.register_view(MeterCheckView(self))
         self.hass.http.register_view(MeterAccountView(self))
         self.hass.http.register_view(CustomerNameView(self))
+        self.hass.http.register_view(SyncProgressView(self))
         self.activate()
 
     @callback
@@ -714,3 +715,16 @@ class CustomerNameView(HomeAssistantView):
         except Exception:
             _LOGGER.warning('Could not save customer display name for %s',account)
             return web.json_response({'error':'Chưa lưu được tên. Cấu hình bộ đếm được giữ nguyên.'},status=503)
+
+
+class SyncProgressView(HomeAssistantView):
+    url='/api/npc/sync-progress/{account}'
+    name='api:npc:sync-progress'
+    requires_auth=True
+    def __init__(self,manager):self.manager=manager
+    async def get(self,request,account):
+        accounts=self.manager.accounts()
+        if account not in accounts:raise web.HTTPNotFound()
+        from .sync_progress import overview
+        result=await self.manager.hass.async_add_executor_job(overview,accounts,account)
+        return web.json_response(result,headers={'Cache-Control':'private, no-store'})

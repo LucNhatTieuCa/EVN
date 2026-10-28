@@ -10,8 +10,9 @@ TZ=ZoneInfo('Asia/Ho_Chi_Minh')
 def _stamp():return datetime.now(TZ).isoformat()
 
 def _state(account,**values):
-    allowed={'history_cursor','history_status','history_empty_windows','history_first_day','monthly_scanned','monthly_cursor','last_error'}
+    allowed={'history_cursor','history_status','history_empty_windows','history_first_day','monthly_scanned','monthly_cursor','last_error','history_retry_at','history_window_start','history_window_end'}
     if not set(values)<=allowed:raise ValueError('Invalid sync field')
+    values['history_updated_at']=_stamp()
     with sqlite3.connect(DB,timeout=30) as db:
         db.execute('INSERT OR IGNORE INTO npc_sync_state(account) VALUES(?)',(account,))
         db.execute('UPDATE npc_sync_state SET '+','.join(key+'=?' for key in values)+' WHERE account=?',(*values.values(),account))
@@ -39,6 +40,8 @@ def import_days(account,rows):
             previous=(date,index,factor)
 
 def run(account,cancel):
+    if cancel.is_set():return {'cancelled':True}
+    _state(account,history_status='queued',history_retry_at=None)
     while not _LOCK.acquire(timeout=.5):
         if cancel.is_set():return {'cancelled':True}
     try:
@@ -50,7 +53,13 @@ def run(account,cancel):
     except Exception as error:
         kind = type(error).__name__
         if isinstance(error,urllib.error.HTTPError):kind += ':' + str(error.code)
-        _state(account,history_status='paused',last_error=kind)
+        elif getattr(error,'status',None):kind += ':' + str(error.status)
+        delay=None
+        if isinstance(error,(OSError,sqlite3.Error)):
+            from .request_policy import retry_delay
+            delay=retry_delay(error)
+        _state(account,history_status='paused',last_error=kind,
+               history_retry_at=(datetime.now(TZ)+timedelta(seconds=delay)).isoformat() if delay else None)
         raise
     finally:_LOCK.release()
 
@@ -58,6 +67,7 @@ def _run(account,cancel):
     from .cpc_session import Client
     from .billing_history import sync_index,missing_pdfs
     ensure_database(DB);status=sync_status(account,DB);now=datetime.now(TZ)
+    _state(account,history_retry_at=None)
     invoice_checked=datetime.fromisoformat(status['invoice_checked_at']) if status.get('invoice_checked_at') else None
     if invoice_checked and invoice_checked.tzinfo is None:invoice_checked=invoice_checked.replace(tzinfo=TZ)
     if not invoice_checked or (now-invoice_checked).total_seconds()>=86400:
@@ -94,7 +104,7 @@ def _run(account,cancel):
         empty=int(status.get('history_empty_windows') or 0)
         for _ in range(4):
             if cancel.is_set():return {'cancelled':True}
-            first=cursor-timedelta(days=14);_state(account,history_status='daily',history_cursor=cursor.isoformat())
+            first=cursor-timedelta(days=14);_state(account,history_status='daily',history_cursor=cursor.isoformat(),history_window_start=first.isoformat(),history_window_end=cursor.isoformat())
             rows=_validate(account,client.request('https://cskh-api.cpc.vn/api/evn/tracuu/chisongay',{'MA_DVIQLY':account[:6],'MA_DDO':account+'001','TU_NGAY':first.strftime('%d/%m/%Y'),'DEN_NGAY':cursor.strftime('%d/%m/%Y')}))
             if cancel.is_set():return {'cancelled':True}
             if rows:import_days(account,rows);empty=0

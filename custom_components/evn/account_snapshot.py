@@ -38,4 +38,6 @@ def build(account):
     from .services_cpc import sensors
     result.update(sensors(account,now))
     put('lan_cap_nhat_cuoi',data.get('fetched_at'),{'device_class':'timestamp','Nguồn':'Lần tải EVN thành công'})
+    from .sync_progress import sensors as progress_sensors
+    result.update(progress_sensors(account))
     return result

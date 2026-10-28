@@ -1,4 +1,5 @@
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import logging
 from .const import DOMAIN, CONF_CUSTOMER_ID, CONF_NGAYDAUKY
@@ -27,7 +28,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         "tieu_thu_ky_truoc_nua", "tien_dien_ky_truoc_nua",
         "tieu_thu_hom_nay", "tieu_thu_hom_qua", "tieu_thu_hom_kia",
         "chi_tiet_dien_tieu_thu_ky_nay", "tien_dien_san_luong_nam_nay",
-        "lich_cat_dien", "lan_cap_nhat_cuoi", "tien_no"
+        "lich_cat_dien", "lan_cap_nhat_cuoi", "tien_no",
+        "dong_bo_du_lieu", "tien_do_tai_pdf"
     ]
     from homeassistant.helpers import entity_registry as er
     from .database import save_entity_ids,entity_ids
@@ -69,6 +71,8 @@ VIETNAMESE_NAMES = {
     "lich_cat_dien": "Lịch cắt điện",
     "lan_cap_nhat_cuoi": "Update Last",
     "tien_no": "Tiền nợ",
+    "dong_bo_du_lieu": "Đồng bộ dữ liệu",
+    "tien_do_tai_pdf": "Tiến độ tải PDF",
 }
 
 
@@ -127,7 +131,9 @@ class EVNSensor(CoordinatorEntity, SensorEntity):
             "chi_tiet_dien_tieu_thu_ky_nay": "mdi:calendar-month",
             "tien_dien_san_luong_nam_nay": "mdi:calendar-month",
             "tien_no": "mdi:cash-multiple",
-            "lich_cat_dien": "mdi:calendar-alert"
+            "lich_cat_dien": "mdi:calendar-alert",
+            "dong_bo_du_lieu": "mdi:cloud-sync",
+            "tien_do_tai_pdf": "mdi:file-download-outline"
         }
         return ICON_MAPPING.get(self._sensor_type, None)
 
@@ -138,14 +144,20 @@ class EVNSensor(CoordinatorEntity, SensorEntity):
             "name": f"EVN VN Device ({self._customer_id})",
             "manufacturer": "LucNhatTieuCa",
             "model": "EVN VN",
-            "sw_version": "2026.10.28.5",
+            "sw_version": "2026.10.28.6",
         }
+
+    @property
+    def entity_category(self):
+        if self._sensor_type in ('dong_bo_du_lieu','tien_do_tai_pdf'):
+            return EntityCategory.DIAGNOSTIC
+        return None
 
     @property
     def available(self) -> bool:
         """Return if entity is available."""
         # Lịch cắt điện luôn available, ngay cả khi không có data
-        if self._sensor_type == "lich_cat_dien":
+        if self._sensor_type in ("lich_cat_dien", "dong_bo_du_lieu", "tien_do_tai_pdf"):
             return True
         return self.coordinator.last_update_success
 
@@ -156,6 +168,7 @@ class EVNSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def unit_of_measurement(self):
+        if self._sensor_type == "tien_do_tai_pdf":return "%"
         if self._sensor_type == "tien_dien_san_luong_nam_nay":
             return None
         if self._sensor_type.startswith("chi_so_"):

@@ -52,10 +52,7 @@
     const n=d.evn, vat=n.tariff?.vat_percent??8, interval=(a,b)=>`${date(a)} → ${date(b)}`;
     const evnTiles=metric('Điện tháng',n.kwh,n.estimated_vnd,interval(n.period_start,n.cutoff))+metric('Hôm qua',n.yesterday_kwh,n.yesterday_estimated_vnd,interval(n.yesterday_start_at,n.yesterday_read_at));
     const evnNotes=`Tổng điện theo API EVN mới. Chỉ số đầu: ${fmt(n.initial_reading)} → cuối: ${fmt(n.latest_reading)}. HA đồng bộ: ${date(n.fetched_at)}. Tiền dự kiến lũy tiến theo tổng API, đã gồm VAT ${vat}%. Tiền ngày là phần tăng tiền tháng tại hai mốc API.`;
-    const sync=n.sync||{};let status={pending:'Đang chuẩn bị',invoices:'Đang lấy hóa đơn',monthly:'Đang lấy lịch sử tháng',daily:'Đang lấy lịch sử ngày',pdf:'Đang lưu PDF',partial:'Đang bổ sung lịch sử',paused:'Tạm dừng, sẽ thử lại',ready:'Đã đồng bộ'}[sync.history_status];
-    if(sync.pdf_progress){const p=sync.pdf_progress;status=(status||'Đang đồng bộ')+` · PDF ${p.downloaded}/${p.total}`+(p.unavailable?` · ${p.unavailable} chưa được EVN cung cấp`:'');}
-    if(sync.monthly_cursor&&!sync.monthly_scanned)status+=( ` · đang quét năm ${sync.monthly_cursor}`);
-    const revision=d.account+'|'+(sync.invoice_checked_at||'')+'|'+(sync.history_status==='ready');
+    const sync=n.sync||{},revision=[d.account,sync.invoice_checked_at,sync.monthly_cursor,sync.history_cursor,sync.history_status==='ready'].join('|');
     if(historyRevision.has(d.account)&&historyRevision.get(d.account)!==revision)document.dispatchEvent(new CustomEvent('evn-history-updated'));historyRevision.set(d.account,revision);
     let tiles, notes;
     if(!d.configured) {
@@ -70,9 +67,8 @@
     }
     el('meterValues').style.gridTemplateColumns=d.configured?'':'1fr';
     const heading=document.querySelector('.meter-heading h3');if(heading)heading.textContent=d.configured?'Điện năng · EVN và Electric Meter':'Điện năng · EVN';
-    el('meterValues').innerHTML=group('EVN mới','Theo API',evnTiles,evnNotes+(status?' Lịch sử: '+status+(sync.history_first_day?' · ngày từ '+sync.history_first_day:'')+'.':''),'source-new')+(d.configured?group('Electric Meter','15 phút/lần',tiles,notes,'source-local'):'');
+    el('meterValues').innerHTML=group('EVN mới','Theo API',evnTiles,evnNotes,'source-new')+(d.configured?group('Electric Meter','15 phút/lần',tiles,notes,'source-local'):'');
     el('meterStatus').textContent=d.configured?`Chuẩn đối chiếu: mốc đầu kỳ và tổng điện API EVN mới. Electric dùng chỉ số riêng tại cùng mốc. Tiền đang chạy là dự kiến, gồm VAT ${vat}%; số phải trả theo hóa đơn EVN phát hành.`:`Dữ liệu theo API EVN mới. Tiền đang chạy là dự kiến, gồm VAT ${vat}%; số phải trả theo hóa đơn EVN phát hành.`;
-    if(status)el('meterStatus').textContent='Đồng bộ: '+status+'. '+el('meterStatus').textContent;
   }
   async function refresh() {
     const a=account();if(!a||pending)return;const request=++sequence;

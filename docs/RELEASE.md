@@ -2,13 +2,13 @@
 
 Source by SmartBlackHome - Custom by LucNhatTieuCa
 
-Phiên bản hiện tại: 2026.10.28.5; domain evn. Nguồn bàn giao: bản HACS preparation của project HA, không phải bản chụp trực tiếp từ HA đang chạy.
+Phiên bản hiện tại: 2026.10.28.6; domain evn. Mã phiên bản này đã được kiểm tra trên Home Assistant 2026.10.2; gói không kèm dữ liệu vận hành.
 
 ## Trước khi upload
 
 1. Đích đã chốt: LucNhatTieuCa/EVN (public theo yêu cầu chủ hệ thống ngày 28/10/2026). Khi đổi đích, chạy `python3 tools/set_repository.py OWNER/REPO` để điền URL và codeowner thực. Lệnh chỉ sửa metadata local.
 2. Chạy `python3 -m unittest discover -s tests -v` và `python3 tools/check_package.py`. Chế độ `--preparation` cho phép thiếu metadata, không chứng minh sẵn sàng phát hành.
-3. Rà diff và toàn bộ commits dự định push; không đưa dữ liệu vận hành hoặc hồ sơ workspace vào Git. Gói này chưa có lịch sử Git để rà.
+3. Rà diff và toàn bộ commits dự định push; không đưa dữ liệu vận hành hoặc hồ sơ workspace vào Git. Rà cả các commit mới dự định push.
 4. Chạy CI HACS/hassfest trên repo đích; kiểm thử cài mới HA sạch, nâng cấp, restart giữa batch và phục hồi backup. Ghi riêng kết quả từng mục.
 5. Chủ hệ thống đã yêu cầu công khai repo EVN ngày 28/10/2026 để dùng HACS.
 6. Giữ ghi nguồn và giấy phép vendor. Chưa có LICENSE xác minh cho mã kế thừa; không tự gán MIT hoặc giấy phép khác. Dòng ghi nguồn không thay cho giấy phép tái phân phối.
@@ -36,3 +36,14 @@ Xóa entry xóa dữ liệu theo mã; xóa mã cuối dọn toàn bộ runtime d
 Thư mục HACS và domain đổi npc → evn. Form đăng nhập hiển thị LucNhatTieuCa; ghi nguồn thống nhất Source by SmartBlackHome - Custom by LucNhatTieuCa. Cần chuyển domain có kiểm soát cho bản npc đã cấu hình; đọc INSTALL.md. Không đổi biểu giá, lịch gọi API hay dữ liệu điện trong lần đổi tên.
 
 Tải lịch sử chạy bằng background task, không chặn bootstrap của HA. Checkpoint giữ khi lỗi HTTP; trạng thái ghi mã HTTP an toàn và xóa lỗi cũ khi batch thành công. Đây không phải cam kết nhà cung cấp luôn trả đủ PDF/lịch sử.
+
+
+## 2026.10.28.6
+
+Thêm khung tiến trình đồng bộ và hai sensor chẩn đoán cho mỗi mã khách hàng. Hiển thị số PDF đã lưu/tổng/còn thiếu, phần trăm đã lưu, số bản ghi tháng/ngày và lý do/thời điểm thử lại. PDF chưa được EVN cung cấp không tính là đã tải; tổng chưa biết không được gán0hoặc100%. Tiến trình chỉ đọc dữ liệu tại HA, không tăng truy vấn EVN.
+
+Dữ liệu lịch sử cập nhật lên sensor sau từng đợt, không chờ PDF hoàn tất. Phát dữ liệu cache không reset lịch poll4giờ. Giữ64entityID hiện có khi nâng cấp; thêm8sensor chẩn đoán trên bộ4mã đã kiểm tra. MigrationSQLite chỉ thêm cột tiến trình.
+
+Đã qua33test ngoại tuyến, packagecheck, kiểm traCore/API/database/entityIDs và giao diện desktop/mobile trên HA2026.10.2. Các ảnh README vẫn là dữ liệu minh họa. Việc tải toàn bộ PDF phụ thuộc dữ liệu và giới hạn máy chủ; không coi khởi tạo hoàn tất khi còn tài liệu thiếu. Không phải bằng chứng kiểm thử mọi phiên bảnHA hoặc khôi phục backup.
+
+Khung tiến trình tự ẩn sau khi xử lý xong các dữ liệu có thể tải của mã đang xem; không ẩn khi đang tải, chờ lượt, tạm nghỉ hoặc chưa biết tổng. Các sensor chẩn đoán được giữ.
