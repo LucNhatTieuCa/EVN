@@ -24,3 +24,5 @@ Các test ngoại tuyến dùng boundary HA/HTTP giả lập; không thay thế 
 Workflow kiểm tra custom repository. HACS Action bỏ riêng check `license` vì chưa xác minh được giấy phép nguồn kế thừa; giữ giấy phép vendor và ghi nguồn, không tự gán giấy phép OSI. Mỗi run hiện cảnh báo và ghi giới hạn này trong job summary. CI xanh không xác nhận giấy phép hoặc điều kiện đưa vào hacs/default. Các check khác, gồm topics, vẫn chạy.
 
 Quy cách action: https://www.hacs.xyz/docs/publish/action/ .
+
+Trường categories chưa được khai báo do image hassfest hiện tại từ chối trường này; HACS có thể cảnh báo thiếu category. Đây là metadata tùy chọn của custom integration, không ảnh hưởng chức năng.
