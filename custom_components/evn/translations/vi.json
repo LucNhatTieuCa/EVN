@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "credentials": {
-        "title": "🔐 Thông tin đăng nhập",
+        "title": "EVN VN — LucNhatTieuCa",
         "data": {
           "username": "👤 Tên đăng nhập",
           "password": "🔒 Mật khẩu"
@@ -11,7 +11,7 @@
           "username": "Nhập tên đăng nhập để đăng nhập vào hệ thống EVN",
           "password": "Nhập mật khẩu để đăng nhập vào hệ thống EVN"
         },
-        "description": "Đăng nhập EVN CPC. Tự thêm mọi mã khách hàng liên kết; dữ liệu và PDF được tải lần lượt. Xem tiến trình trong EVN Monitor."
+        "description": "Đăng nhập EVN CPC miền Trung. Tự thêm các mã liên kết; dữ liệu và hóa đơn được tải lần lượt. Custom by LucNhatTieuCa."
       }
     },
     "abort": {

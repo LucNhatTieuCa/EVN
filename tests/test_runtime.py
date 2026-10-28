@@ -14,7 +14,7 @@ import unittest
 from unittest.mock import patch
 import urllib.error
 
-ROOT = Path(__file__).resolve().parents[1] / 'custom_components/npc'
+ROOT = Path(__file__).resolve().parents[1] / 'custom_components/evn'
 pkg=types.ModuleType('evn_test');pkg.__path__=[str(ROOT)];sys.modules['evn_test']=pkg
 
 def module(name):return importlib.import_module('evn_test.'+name)
@@ -74,6 +74,24 @@ class RuntimeTests(unittest.TestCase):
             self.assertTrue(b['complete'])
         self.assertEqual(calls[2]['TU_THANG_NAM'],f'01/{year}')
         self.assertEqual(self.db.sync_status('PCDEMO12345')['history_status'],'ready')
+
+    def test_partial_history_success_clears_stale_error_without_resetting_checkpoint(self):
+        with sqlite3.connect(self.db.DB) as db:
+            db.execute("UPDATE npc_sync_state SET last_error='HTTPError:503',monthly_cursor=2020")
+        with patch.object(self.history,'_run',return_value={'complete':False}):
+            self.assertFalse(self.history.run('PCDEMO12345',threading.Event())['complete'])
+        status=self.db.sync_status('PCDEMO12345')
+        self.assertIsNone(status['last_error']);self.assertEqual(status['monthly_cursor'],2020)
+
+    def test_http_failure_retains_checkpoint_and_records_only_safe_status(self):
+        with sqlite3.connect(self.db.DB) as db:
+            db.execute("UPDATE npc_sync_state SET history_cursor='2025-01-01'")
+        error=urllib.error.HTTPError('https://example.invalid/private',503,'provider unavailable',{},None)
+        with patch.object(self.history,'_run',side_effect=error):
+            with self.assertRaises(urllib.error.HTTPError):self.history.run('PCDEMO12345',threading.Event())
+        status=self.db.sync_status('PCDEMO12345')
+        self.assertEqual(status['last_error'],'HTTPError:503')
+        self.assertEqual(status['history_cursor'],'2025-01-01')
 
     def test_cancel_before_start_no_requests(self):
         cancel=threading.Event();cancel.set()

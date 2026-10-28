@@ -11,13 +11,14 @@ import types
 import unittest
 from unittest.mock import patch
 
-ROOT = Path(__file__).resolve().parents[1] / 'custom_components/npc'
+ROOT = Path(__file__).resolve().parents[1] / 'custom_components/evn'
 
 class BaseCoordinator:
     def __init__(self, hass, *args, **kwargs):
         self.hass = hass
         self._shutdown_requested = False
         self.data = None
+        self.config_entry = None
     async def async_shutdown(self):
         self._shutdown_requested = True
 
@@ -40,7 +41,7 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
                 await release.wait()
                 target.write_text('completed')
                 return {'complete': True}
-            hass = types.SimpleNamespace(async_create_task=asyncio.create_task,
+            hass = types.SimpleNamespace(async_create_background_task=lambda coro,name,eager_start=False:asyncio.create_task(coro),
                 async_add_executor_job=lambda *args: asyncio.create_task(executor_job()))
             worker = types.ModuleType('worker_fixture.history_worker'); worker.run = lambda *args: None
             with patch.dict('sys.modules', {'worker_fixture': types.ModuleType('worker_fixture'),

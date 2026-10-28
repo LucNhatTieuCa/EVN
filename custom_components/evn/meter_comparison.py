@@ -183,7 +183,7 @@ class MeterManager:
     async def _registry_changed(self,event):
         if event.data.get('action')!='update':return
         entry=er.async_get(self.hass).async_get(event.data.get('entity_id',''))
-        if entry and entry.platform=='npc':
+        if entry and entry.platform=='evn':
             from .database import save_entity_ids
             await self.hass.async_add_executor_job(save_entity_ids,{entry.unique_id:entry.entity_id})
 
@@ -274,12 +274,12 @@ class MeterManager:
 
     def accounts(self):
         return {entry.data.get('customer_id') or entry.data.get('username')
-                for entry in self.hass.config_entries.async_entries('npc') if entry.disabled_by is None}
+                for entry in self.hass.config_entries.async_entries('evn') if entry.disabled_by is None}
 
     def sources(self):
         registry = er.async_get(self.hass)
         blocked = {entry.entity_id for entry in registry.entities.values()
-                   if entry.platform in ('npc', 'utility_meter')}
+                   if entry.platform in ('evn', 'utility_meter')}
         return [{'entity_id': state.entity_id,
                  'name': state.attributes.get('friendly_name', state.entity_id),
                  'unit': state.attributes.get('unit_of_measurement'),
@@ -629,7 +629,7 @@ class MeterWindowSensor(SensorEntity):
         self.entity_id = f'sensor.evn_{account.lower()}_electric_meter_{kind}'
         self._attr_unique_id = f'{account}_electric_meter_{kind}_32d'
         self._attr_name = f'EVN {account} ' + ('Bộ đếm thực tế' if kind == 'actual' else 'Bộ đếm tại mốc EVN')
-        self._attr_device_info = {'identifiers': {('npc', account)}}
+        self._attr_device_info = {'identifiers': {('evn', account)}}
         self._attr_available = False
         self._period_start = None
 

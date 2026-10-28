@@ -1,8 +1,8 @@
 # Chuẩn bị phát hành
 
-Source by BlackSmartHome - Custom by honganhlqt
+Source by SmartBlackHome - Custom by LucNhatTieuCa
 
-Phiên bản chuẩn bị: 2026.10.28.4; domain npc. Nguồn bàn giao: bản HACS preparation của project HA, không phải bản chụp trực tiếp từ HA đang chạy.
+Phiên bản hiện tại: 2026.10.28.5; domain evn. Nguồn bàn giao: bản HACS preparation của project HA, không phải bản chụp trực tiếp từ HA đang chạy.
 
 ## Trước khi upload
 
@@ -30,3 +30,9 @@ Trường categories chưa được khai báo do image hassfest hiện tại t�
 ## Thay đổi 2026.10.28.4
 
 Xóa entry xóa dữ liệu theo mã; xóa mã cuối dọn toàn bộ runtime data. Unload/reload không xóa. Chờ worker/poll dừng trước khi xóa SQLite. Registry và Recorder được dọn theo đúng entity sở hữu; giữ sensor vật lý, dữ liệu mã còn lại và backup ngoài runtime. Đã kiểm thử gỡ thật bốn entry trên HAOS 2026.10.2; chi tiết số lượng được ghi trong báo cáo quản trị ngoài repo.
+
+## 2026.10.28.5
+
+Thư mục HACS và domain đổi npc → evn. Form đăng nhập hiển thị LucNhatTieuCa; ghi nguồn thống nhất Source by SmartBlackHome - Custom by LucNhatTieuCa. Cần chuyển domain có kiểm soát cho bản npc đã cấu hình; đọc INSTALL.md. Không đổi biểu giá, lịch gọi API hay dữ liệu điện trong lần đổi tên.
+
+Tải lịch sử chạy bằng background task, không chặn bootstrap của HA. Checkpoint giữ khi lỗi HTTP; trạng thái ghi mã HTTP an toàn và xóa lỗi cũ khi batch thành công. Đây không phải cam kết nhà cung cấp luôn trả đủ PDF/lịch sử.

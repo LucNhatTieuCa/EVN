@@ -3,7 +3,7 @@
 | Hiện tượng | Kiểm tra / thao tác |
 |---|---|
 | HACS không nhận repo | URL đúng, repo public, loại Integration; manifest đủ documentation/issue_tracker/codeowners. |
-| Không tìm thấy EVN VN trong Thêm tích hợp | Đã restart HA, đủ phiên bản, đúng custom_components/npc/manifest.json; xem log custom_components.npc. |
+| Không tìm thấy EVN VN trong Thêm tích hợp | Đã restart HA, đủ phiên bản, đúng custom_components/evn/manifest.json; xem log custom_components.evn. |
 | Đăng nhập thất bại | Thử ứng dụng CPC chính thức; xử lý CAPTCHA/đổi mật khẩu ở đó. Chỉ CPC được hỗ trợ. Không thử lặp liên tục khi bị giới hạn. |
 | HTTP 429 / dữ liệu chậm | Chờ cooldown và lịch cập nhật; không restart liên tục để ép gọi API. |
 | PDF chưa đủ | Xem số tải/chưa được cung cấp/đang chờ; lịch sử tải theo batch. EVN có thể không còn cung cấp PDF cũ. |

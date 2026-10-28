@@ -1,6 +1,6 @@
 import asyncio,importlib,sys,types,tempfile,sqlite3,json,unittest
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1] / 'custom_components/npc'
+ROOT=Path(__file__).resolve().parents[1] / 'custom_components/evn'
 pkg=types.ModuleType('cleanup_test');pkg.__path__=[str(ROOT)];sys.modules['cleanup_test']=pkg
 m=importlib.import_module('cleanup_test.removal');database=importlib.import_module('cleanup_test.database')
 class RemovalTests(unittest.TestCase):

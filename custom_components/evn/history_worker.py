@@ -1,5 +1,6 @@
 """Cancellable, checkpointed initial history; bounded jobs, no data clearing."""
 import json,sqlite3,threading,time
+import urllib.error
 from datetime import datetime,timedelta
 from zoneinfo import ZoneInfo
 from .database import DB,ensure_database,official_transaction,sync_status
@@ -42,9 +43,14 @@ def run(account,cancel):
         if cancel.is_set():return {'cancelled':True}
     try:
         if cancel.is_set():return {'cancelled':True}
-        return _run(account,cancel)
+        result = _run(account,cancel)
+        if not result.get('cancelled'):
+            _state(account,last_error=None)
+        return result
     except Exception as error:
-        _state(account,history_status='paused',last_error=type(error).__name__)
+        kind = type(error).__name__
+        if isinstance(error,urllib.error.HTTPError):kind += ':' + str(error.code)
+        _state(account,history_status='paused',last_error=kind)
         raise
     finally:_LOCK.release()
 

@@ -32,7 +32,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     from homeassistant.helpers import entity_registry as er
     from .database import save_entity_ids,entity_ids
     registry=er.async_get(hass)
-    await hass.async_add_executor_job(save_entity_ids,{e.unique_id:e.entity_id for e in registry.entities.values() if e.platform=='npc' and e.unique_id.startswith(customer_id+'_')})
+    await hass.async_add_executor_job(save_entity_ids,{e.unique_id:e.entity_id for e in registry.entities.values() if e.platform=='evn' and e.unique_id.startswith(customer_id+'_')})
     saved=await hass.async_add_executor_job(entity_ids,customer_id)
     entities = []
     for sensor_type in SENSOR_TYPES:
@@ -40,7 +40,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         unit = None
         entity=EVNSensor(coordinator,customer_id,sensor_type,unique_id,unit,ngaydauky)
         desired=saved.get(unique_id);occupied=registry.async_get(desired) if desired else None
-        if desired and (not occupied or (occupied.platform=='npc' and occupied.unique_id==unique_id)):entity.entity_id=desired
+        if desired and (not occupied or (occupied.platform=='evn' and occupied.unique_id==unique_id)):entity.entity_id=desired
         entities.append(entity)
         _LOGGER.debug(f"Adding {len(entities)} sensors for {customer_id}")
     from .meter_comparison import async_manager
@@ -136,9 +136,9 @@ class EVNSensor(CoordinatorEntity, SensorEntity):
         return {
             "identifiers": {(DOMAIN, self._customer_id)},
             "name": f"EVN VN Device ({self._customer_id})",
-            "manufacturer": "Smarthome Black",
+            "manufacturer": "LucNhatTieuCa",
             "model": "EVN VN",
-            "sw_version": "2026.10.28",
+            "sw_version": "2026.10.28.5",
         }
 
     @property

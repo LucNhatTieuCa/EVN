@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "credentials": {
-        "title": "🔐 Login Information",
+        "title": "EVN VN — LucNhatTieuCa",
         "data": {
           "username": "👤 Username",
           "password": "🔒 Password"
@@ -11,7 +11,7 @@
           "username": "Enter username to login to EVN system",
           "password": "Enter password to login to EVN system"
         },
-        "description": "Sign in to EVN CPC. All linked customers are added automatically. Data and invoices download sequentially; see progress in EVN Monitor."
+        "description": "Sign in to EVN CPC (Central Vietnam). Linked customers are added automatically; data and invoices download sequentially. Custom by LucNhatTieuCa."
       }
     },
     "abort": {

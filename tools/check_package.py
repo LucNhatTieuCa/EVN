@@ -9,7 +9,7 @@ import sys
 from html.parser import HTMLParser
 
 parser=argparse.ArgumentParser();parser.add_argument('--preparation',action='store_true');args=parser.parse_args()
-root=Path(__file__).resolve().parents[1];component=root/'custom_components/npc';errors=[];pending=[]
+root=Path(__file__).resolve().parents[1];component=root/'custom_components/evn';errors=[];pending=[]
 for path in component.rglob('*.py'):
     try:ast.parse(path.read_text(),filename=str(path))
     except SyntaxError as error:errors.append(str(error))
@@ -37,6 +37,11 @@ for file in (component/'webui').glob('*.html'):LocalAssets(file).feed(file.read_
 manifest=json.loads((component/'manifest.json').read_text())
 if list(manifest) != ['domain', 'name'] + sorted(set(manifest) - {'domain', 'name'}):
     errors.append('Manifest keys must be domain, name, then alphabetical')
+if manifest.get('domain') != component.name:
+    errors.append('Manifest domain must match the integration directory name')
+components = [p.name for p in (root/'custom_components').iterdir() if p.is_dir() and not p.name.startswith('.') and p.name != '__pycache__']
+if components != [component.name]:
+    errors.append('HACS package must contain exactly one integration directory')
 for key in ('documentation','issue_tracker'):
     if not manifest.get(key):pending.append('Set destination repository metadata: '+key)
 result={'code_checks':'PASS' if not errors else 'FAIL','errors':errors,'publication_pending':pending,'strict_release_ready':not errors and not pending}

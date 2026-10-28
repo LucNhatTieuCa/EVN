@@ -1,7 +1,7 @@
 """Native CPC configuration keys; legacy entry keys remain readable."""
 from .paths import data_path, auth_path
 
-DOMAIN = "npc"
+DOMAIN = "evn"
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 CONF_CUSTOMER_ID = "customer_id"

@@ -1,6 +1,6 @@
 # EVN VN
 
-Source by BlackSmartHome - Custom by honganhlqt
+Source by SmartBlackHome - Custom by LucNhatTieuCa
 
 Theo dõi điện EVN CPC miền Trung trong Home Assistant, cài qua HACS và không cần add-on. Hỗ trợ mã khách hàng bắt đầu bằng `PC`; chưa hỗ trợ các miền khác.
 
@@ -51,4 +51,4 @@ PDF.js, Chart.js, Tailwind CSS và Font Awesome được đóng gói kèm phiên
 - [Xử lý lỗi và báo lỗi an toàn](docs/TROUBLESHOOTING.md)
 - [Trạng thái và checklist phát hành](docs/RELEASE.md)
 
-Bản 2026.10.28.4 đã kiểm thử gỡ entry trên HAOS; cài mới và nâng cấp toàn bộ bản chia sẻ vẫn cần nghiệm thu riêng. Repository private không dùng được với HACS; cần repository công khai để cài qua Custom repositories.
+Từ bản 2026.10.28.5, domain và thư mục chương trình là `evn`. Nếu đang dùng domain `npc`, xem hướng dẫn chuyển đổi trong INSTALL.md trước khi nâng cấp. Repository private không dùng được với HACS; cần repository công khai để cài qua Custom repositories.

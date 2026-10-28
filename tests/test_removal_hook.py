@@ -2,7 +2,7 @@ import sys,types,asyncio,tempfile,unittest,threading
 from pathlib import Path
 from unittest.mock import patch,AsyncMock
 import importlib
-pkg=types.ModuleType('hook_test');pkg.__path__=[str(Path(__file__).resolve().parents[1] / 'custom_components/npc')];sys.modules['hook_test']=pkg
+pkg=types.ModuleType('hook_test');pkg.__path__=[str(Path(__file__).resolve().parents[1] / 'custom_components/evn')];sys.modules['hook_test']=pkg
 module=importlib.import_module('hook_test.removal')
 class HookTests(unittest.IsolatedAsyncioTestCase):
  async def test_last_removes_store_entities_and_preserves_source(self):
@@ -14,7 +14,7 @@ class HookTests(unittest.IsolatedAsyncioTestCase):
  async def run_case(self,legacy=False,foreign=False):
   with tempfile.TemporaryDirectory() as directory:
    root=Path(directory);(root/'evnvn').mkdir();(root/'evnvn'/'fixture').write_text('private')
-   owned=types.SimpleNamespace(entity_id='sensor.evn_fixture',platform='npc')
+   owned=types.SimpleNamespace(entity_id='sensor.evn_fixture',platform='evn')
    registry=types.SimpleNamespace(async_remove=lambda e:removed.append(e))
    removed=[];states=[];store=types.SimpleNamespace(async_remove=AsyncMock(),async_save=AsyncMock())
    manager=types.SimpleNamespace(detach=AsyncMock(),store=store,lock=asyncio.Lock(),data={'accounts':{'PCDEMOA':{'source':'sensor.physical'}},'names':{'PCDEMOA':'alias'}},cache={},electric_cache={},series_cache={},live_points={})

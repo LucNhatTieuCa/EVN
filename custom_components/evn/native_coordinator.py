@@ -78,7 +78,12 @@ class EVNCoordinator(DataUpdateCoordinator):
                 self._history_cancel.set();raise
             except Exception:
                 _LOGGER.warning('EVN history paused for %s; checkpoint and existing data retained',self.customer_id)
-        self._history_task=self.hass.async_create_task(work())
+        if self.config_entry:
+            self._history_task = self.config_entry.async_create_background_task(
+                self.hass, work(), 'EVN history', eager_start=False)
+        else:
+            self._history_task = self.hass.async_create_background_task(
+                work(), 'EVN history', eager_start=False)
 
     async def stop_history(self):
         self._active=False
