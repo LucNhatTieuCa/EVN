@@ -157,8 +157,9 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     await hass.config_entries.async_reload(entry.entry_id)
 
 
-async def async_remove_entry(hass:HomeAssistant,entry:ConfigEntry)->None:
-    """Disconnect only: keep invoice history, identity map and chosen source for re-add."""
-    from .meter_comparison import KEY
-    manager=hass.data.get(KEY)
-    if manager:await manager.detach(entry.data[CONF_CUSTOMER_ID])
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Deleting an entry erases its data; reload/unload preserves it."""
+    from .paths import configure
+    configure(hass)
+    from .removal import async_remove
+    await async_remove(hass, entry)

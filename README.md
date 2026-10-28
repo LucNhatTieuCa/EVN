@@ -34,8 +34,11 @@ Biểu giá cấu hình cho điện sinh hoạt một hộ được kiểm tra v
 
 Dữ liệu nằm trong thư mục `evnvn` dưới thư mục cấu hình HA: SQLite `evndata.db`, PDF trong `invoices`, thông tin đăng nhập trong `private/credentials.json` có quyền chỉ chủ sở hữu đọc/ghi. Mật khẩu không trả về WebUI và không nằm trong config entry; file gốc vẫn là dữ liệu nhạy cảm và phải được bảo vệ cùng backup HA. Lịch sử đổi thông tin đăng nhập được mã hóa, khóa lưu tách khỏi bản mã trong khu vực riêng.
 
-Tên khách hàng, lựa chọn sensor và gốc Electric dùng HA Store. Entity ID/unique ID được giữ khi nâng cấp. Gỡ integration dừng cập nhật nhưng giữ database/PDF/cấu hình để thêm lại tiếp tục; không tự xóa hồ sơ điện. Gỡ HACS chỉ xóa mã chương trình. Nếu muốn xóa cả dữ liệu cá nhân, sao lưu trước rồi xóa dữ liệu riêng khi integration đã được gỡ; không sửa `.storage` khi HA đang chạy.
+Tên khách hàng, lựa chọn sensor và gốc Electric dùng HA Store. Reload, tắt entry hoặc khởi động lại HA giữ dữ liệu. **Xóa config entry EVN sẽ xóa dữ liệu của mã đó**, gồm entity/sensor do integration tạo, lịch sử điện/hóa đơn/PDF, tên riêng, cấu hình đối chiếu và thông tin đăng nhập của mã. Helper Utility Meter cũ chỉ được dọn khi đối chiếu đúng mapping, tên EVN, nguồn và entity sở hữu. Các mã khác, helper tự tạo và sensor công tơ vật lý được chọn làm nguồn không bị xóa.
 
+**Xóa entry EVN cuối cùng sẽ xóa toàn bộ thư mục dữ liệu `evnvn`, kho đăng nhập EVN và HA Store của integration.** HA Recorder được yêu cầu xóa lịch sử và thống kê của các entity EVN đã gỡ; tiến trình purge chạy trong Recorder. Backup HA và snapshot quản trị ngoài cây dữ liệu đang chạy vẫn giữ nguyên. Cài lại cần đăng nhập và tải lại dữ liệu EVN. Hãy backup trước khi xóa entry.
+
+Gỡ mã bằng HACS khác với xóa config entry trong Thiết bị & dịch vụ: hãy xóa entry trước, rồi mới gỡ mã trong HACS để HA còn chạy được hook dọn dữ liệu.
 Không đưa thư mục cấu hình, database, PDF, mật khẩu, ảnh hóa đơn hoặc backup cá nhân vào GitHub.
 
 ## Thư viện
@@ -48,4 +51,4 @@ PDF.js, Chart.js, Tailwind CSS và Font Awesome được đóng gói kèm phiên
 - [Xử lý lỗi và báo lỗi an toàn](docs/TROUBLESHOOTING.md)
 - [Trạng thái và checklist phát hành](docs/RELEASE.md)
 
-Bản 2026.10.28.3 hiện là bản chuẩn bị, chưa nghiệm thu cài mới/nâng cấp thực tế. Repository private không dùng được với HACS; cần repository công khai để cài qua Custom repositories.
+Bản 2026.10.28.4 đã kiểm thử gỡ entry trên HAOS; cài mới và nâng cấp toàn bộ bản chia sẻ vẫn cần nghiệm thu riêng. Repository private không dùng được với HACS; cần repository công khai để cài qua Custom repositories.

@@ -5,7 +5,7 @@
 - Home Assistant từ 2026.10.0; tài khoản EVN CPC miền Trung có mã bắt đầu PC.
 - Kết nối HTTPS từ HA đến dịch vụ CPC; dung lượng trống để lưu SQLite và PDF lịch sử.
 - Tạo backup HA có thể tải về trước khi cài hoặc nâng cấp.
-- Bản 2026.10.28.3 là bản chuẩn bị; chưa nghiệm thu cài mới hoặc nâng cấp thực tế.
+- Bản 2026.10.28.4 đã test gỡ entry trên HAOS; chưa nghiệm thu cài mới hoặc nâng cấp toàn bộ gói chia sẻ.
 
 ## Cài qua HACS
 
@@ -44,3 +44,7 @@ Nếu bản mới lỗi, dùng HACS Redownload chọn bản đã chạy tốt, h
 - https://www.hacs.xyz/docs/publish/integration/
 - https://www.hacs.xyz/docs/use/repositories/dashboard/
 - https://www.hacs.xyz/docs/faq/private_repositories/
+
+## Gỡ tích hợp và dữ liệu
+
+Sao lưu trước. Xóa entry trong Cài đặt → Thiết bị & dịch vụ → EVN VN sẽ xóa entity/sensor và dữ liệu mã đó. Xóa entry cuối cùng xóa toàn bộ dữ liệu EVN, thông tin đăng nhập và HA Store. Reload/disable/restart không xóa dữ liệu. Sensor công tơ vật lý thuộc integration khác và backup bên ngoài được giữ nguyên. Sau khi gỡ hết entry, có thể gỡ mã bằng HACS; nếu xóa mã trước, hook dọn dữ liệu sẽ không còn để chạy. Cài lại cần đăng nhập và tải dữ liệu lại, không tự khôi phục dữ liệu đã xóa.

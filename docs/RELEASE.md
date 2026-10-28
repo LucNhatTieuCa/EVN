@@ -2,7 +2,7 @@
 
 Source by BlackSmartHome - Custom by honganhlqt
 
-Phiên bản chuẩn bị: 2026.10.28.3; domain npc. Nguồn bàn giao: bản HACS preparation của project HA, không phải bản chụp trực tiếp từ HA đang chạy.
+Phiên bản chuẩn bị: 2026.10.28.4; domain npc. Nguồn bàn giao: bản HACS preparation của project HA, không phải bản chụp trực tiếp từ HA đang chạy.
 
 ## Trước khi upload
 
@@ -26,3 +26,7 @@ Workflow kiểm tra custom repository. HACS Action bỏ riêng check `license` v
 Quy cách action: https://www.hacs.xyz/docs/publish/action/ .
 
 Trường categories chưa được khai báo do image hassfest hiện tại từ chối trường này; HACS có thể cảnh báo thiếu category. Đây là metadata tùy chọn của custom integration, không ảnh hưởng chức năng.
+
+## Thay đổi 2026.10.28.4
+
+Xóa entry xóa dữ liệu theo mã; xóa mã cuối dọn toàn bộ runtime data. Unload/reload không xóa. Chờ worker/poll dừng trước khi xóa SQLite. Registry và Recorder được dọn theo đúng entity sở hữu; giữ sensor vật lý, dữ liệu mã còn lại và backup ngoài runtime. Đã kiểm thử gỡ thật bốn entry trên HAOS 2026.10.2; chi tiết số lượng được ghi trong báo cáo quản trị ngoài repo.

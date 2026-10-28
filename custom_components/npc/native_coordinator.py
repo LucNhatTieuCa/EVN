@@ -23,8 +23,16 @@ class EVNCoordinator(DataUpdateCoordinator):
         self._active=False
         self._history_task=None
         self._history_cancel=None
+        self._history_job=None
+        self._update_lock=asyncio.Lock()
 
     async def _async_update_data(self):
+        async with self._update_lock:
+            if self._shutdown_requested:
+                return self.data or {}
+            return await self._update_data()
+
+    async def _update_data(self):
         try:
             if not await self.hass.async_add_executor_job(supports,self.customer_id):
                 raise ValueError('Configure EVN login for this customer')
@@ -54,7 +62,8 @@ class EVNCoordinator(DataUpdateCoordinator):
                 from .history_worker import run
                 while self._active and not self._history_cancel.is_set():
                     try:
-                        result = await self.hass.async_add_executor_job(run,self.customer_id,self._history_cancel)
+                        self._history_job = self.hass.async_add_executor_job(run,self.customer_id,self._history_cancel)
+                        result = await asyncio.shield(self._history_job)
                     except (OSError, sqlite3.Error):
                         _LOGGER.warning('EVN history temporarily paused; retrying from checkpoint')
                         await asyncio.sleep(300)
@@ -73,6 +82,13 @@ class EVNCoordinator(DataUpdateCoordinator):
 
     async def stop_history(self):
         self._active=False
+        await self.async_shutdown()
         if self._history_cancel:self._history_cancel.set()
         if self._history_task and not self._history_task.done():
             self._history_task.cancel();await asyncio.gather(self._history_task,return_exceptions=True)
+
+        if self._history_job:
+            await asyncio.gather(self._history_job, return_exceptions=True)
+        # Wait for an already-running poll to finish before deleting its database.
+        async with self._update_lock:
+            pass
