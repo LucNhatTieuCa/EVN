@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1200" viewBox="0 0 1920 1200">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#102c40"/><stop offset=".56" stop-color="#28566a"/><stop offset="1" stop-color="#965164"/></linearGradient><linearGradient id="lake" x2="0" y2="1"><stop stop-color="#34495c"/><stop offset="1" stop-color="#091a2c"/></linearGradient><radialGradient id="glow"><stop stop-color="#ce7790" stop-opacity=".6"/><stop offset="1" stop-color="#ce7790" stop-opacity="0"/></radialGradient><filter id="blur"><feGaussianBlur stdDeviation="20"/></filter></defs>
+<path fill="url(#sky)" d="M0 0h1920v1200H0z"/><ellipse cx="1380" cy="340" rx="460" ry="330" fill="url(#glow)"/><circle cx="1390" cy="240" r="57" fill="#b9d9d9" opacity=".7"/>
+<path fill="#244558" d="M0 650 210 340 350 490 560 230 780 510 990 370 1270 650 1540 420 1920 620v580H0z"/>
+<path fill="#173547" d="m0 760 260-270 180 160 220-230 270 300 190-170 300 210 280-220 220 100v560H0z"/>
+<path fill="url(#lake)" d="M0 810q550-120 1000 0t920 0v390H0z"/><path d="M1080 820q310 20 440 0m-380 50h260m-340 50h490m-560 60h600m-700 70h770m-820 70h900" stroke="#c46c80" stroke-opacity=".2" stroke-width="9"/>
+<g fill="#0b202d"><path d="M0 750 140 700 300 780 400 900 220 1200H0zM1920 630 1780 700 1660 900 1790 1200h130z"/><path d="m180 760 18-480 20-70 20 70 18 480zM130 400l90-120 90 120zM100 500l120-160 120 160zM70 610l150-190 150 190z"/><path d="m1720 780 18-500 20-70 20 70 18 500zM1668 410l90-120 90 120zM1638 510l120-160 120 160zM1608 620l150-190 150 190z"/></g>
+<g fill="#101e2d"><path d="M435 780V590h18v190m165 0V590h18v190M400 585q130-35 270 0l-12 25H412zM420 645h230v16H420z"/><path d="M1530 788V637h14v151m116 0V637h14v151M1500 630q94-25 200 0l-10 20h-180z"/></g>
+<g fill="#e28d81"><rect x="474" y="700" width="18" height="25" rx="3"/><rect x="587" y="700" width="18" height="25" rx="3"/><rect x="1562" y="728" width="14" height="19" rx="2"/></g><g fill="#e28d81" opacity=".25" filter="url(#blur)"><ellipse cx="487" cy="840" rx="44" ry="90"/><ellipse cx="600" cy="850" rx="36" ry="80"/></g>
+</svg>

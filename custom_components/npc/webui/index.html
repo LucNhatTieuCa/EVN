@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <title>Thống Kê Điện EVN</title>
+
+    <!-- External Libraries -->
+    <link href="assets/vendor/tailwind/tailwind.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome/css/all.min.css" rel="stylesheet">
+    <script src="assets/vendor/chart/chart.umd.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/responsive-improvements.css">
+
+    <!-- PWA Support -->
+    <meta name="theme-color" content="#e961ab">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="assets/css/night-landscape.css?v=20261026-evn2">
+    <script src="assets/js/night-landscape.js?v=20261027-average1"></script>
+    <link rel="stylesheet" href="assets/css/meter-comparison.css?v=20261027-1">
+<style>
+#meterValues{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.source-group{padding:12px;border:1px solid #567888;border-radius:9px;background:#17324280;min-width:0}.source-group>header{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}.source-group>header h4{font-weight:600;font-size:14px}.source-group>header span{font-size:11px;opacity:.8}.source-tiles{display:grid;gap:10px}.source-new{border-top:3px solid #83c6e8}.source-rf{border-top:3px solid #c1a8ed}.source-local{border-top:3px solid #88d9b7}.source-group .meter-tile strong{font-size:24px}.source-group .meter-status{font-size:11px;line-height:1.7}.source-group .meter-empty{grid-column:auto}#meterBaselineAt,#meterBaselineValue{color:#e1edf5;border:1px solid #617e8f} @media(max-width:1000px){#meterValues{grid-template-columns:1fr}.source-tiles{grid-template-columns:1fr 1fr}}@media(max-width:560px){.source-tiles{grid-template-columns:1fr}.source-group .meter-tile strong{font-size:25px}}
+
+/* Compact source summaries; detailed provenance remains expandable. */
+#meterValues{gap:8px}.source-group{padding:9px}.source-group>header{flex-direction:row;align-items:center;justify-content:space-between;gap:4px;margin-bottom:5px}.source-group>header h4{margin:0;font-size:13px}.source-group>header span:empty{display:none}.source-tiles{display:block}.source-group .meter-tile{padding:7px;background:transparent;border:0;box-shadow:none}.source-group .meter-tile h4{font-size:11px;margin:0 0 4px}.source-group .meter-tile strong{font-size:22px}.source-group .meter-money{font-size:15px;margin:3px 0}.source-group .meter-tile small{font-size:11px;display:block}.source-details{font-size:11px;margin-top:5px}.source-details summary{cursor:pointer;opacity:.8}.source-details .meter-status{margin-bottom:0}.meter-yesterday{grid-column:1/-1;padding:9px 11px;border-radius:7px;background:#17324280}.meter-yesterday>div{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:12px}.meter-yesterday small{display:block;font-size:11px;opacity:.8;margin-top:5px}#meterStatus{font-size:11px;margin:7px 0 0}
+@media(max-width:1000px){#meterValues{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){#meterValues{grid-template-columns:1fr}.source-group{padding:8px;display:grid;grid-template-columns:105px minmax(0,1fr);gap:0 6px}.source-group>header{display:block;margin:0}.source-group>header span{display:block;margin-top:5px;font-size:10px}.source-group .meter-tile{padding:0}.source-group .meter-tile strong{font-size:21px}.source-group .meter-tile h4{font-size:10px}.source-group .meter-money{font-size:14px}.source-details{grid-column:1/-1}.meter-yesterday>div{gap:7px 16px}.meter-yesterday b{width:100%}}
+
+/* Consumption extrema: high red, low green, including detail summary/table. */
+.highlight-max{color:#f87171!important;background-color:rgba(239,68,68,.18)!important;font-weight:700}
+.highlight-min{color:#60a5fa!important;background-color:rgba(59,130,246,.18)!important;font-weight:700}
+.highlight-below-average{color:#64d9ac!important;background-color:rgba(34,197,94,.10)!important;font-weight:600}
+.highlight-above-average{color:#facc15!important;background-color:rgba(250,204,21,.10)!important;font-weight:600}
+.highlight-average{color:inherit!important;background-color:transparent!important}
+.detail-color-legend{font-size:12px;line-height:1.8;margin:8px 0 12px;display:flex;gap:7px;flex-wrap:wrap}.detail-color-legend span{padding:1px 5px;border-radius:3px}
+
+/* Explicit semantic colors, independent of theme and utility CSS. */
+#detailModal .evn-summary-overview{background:rgba(109,40,217,.26)!important}
+#detailModal .evn-summary-overview h4{color:#c4b5fd!important}
+#detailModal .evn-summary-high{background:rgba(185,28,28,.32)!important}
+#detailModal .evn-summary-high h4,#detailModal .evn-summary-high .highlight-max{color:#f87171!important}
+#detailModal .evn-summary-low{background:rgba(29,78,216,.30)!important}
+#detailModal .evn-summary-low h4,#detailModal .evn-summary-low .highlight-min{color:#60a5fa!important}
+#detailTable tbody td.highlight-max{color:#f87171!important;background:rgba(239,68,68,.18)!important}
+#detailTable tbody td.highlight-min{color:#60a5fa!important;background:rgba(59,130,246,.18)!important}
+#detailTable tbody td.highlight-below-average{color:#64d9ac!important;background:rgba(34,197,94,.10)!important}
+#detailTable tbody td.highlight-above-average{color:#facc15!important;background:rgba(250,204,21,.10)!important}
+
+#detailModal #tableStats>.grid>div:first-child{background:#4c346b!important}
+#detailModal #tableStats>.grid>div:first-child h4{color:#dfc7ff!important}
+
+#recentDaysData .recent-maximum{color:#f87171!important}
+#recentDaysData .recent-minimum{color:#60a5fa!important}
+#recentDaysData .recent-below-average{color:#64d9ac!important}
+#recentDaysData .recent-above-average{color:#facc15!important}
+
+/* Let all seven daily rows fill the recent-days card. */
+.recent-days-container{min-height:0}
+#recentDaysData.recent-days-list{height:auto!important;max-height:none!important;overflow:visible!important}
+#recentDaysData .recent-day-item{min-height:34px;box-sizing:border-box}
+
+#detailModal .highlight-average,#detailTable tbody td.highlight-average,#recentDaysData .recent-average{color:#ffffff!important;background:transparent!important}
+
+#detailColorLegend .detail-average-value{color:#e2e8f0;background:rgba(148,163,184,.12);margin-left:auto;padding:2px 8px;border:1px solid rgba(148,163,184,.25);border-radius:5px;font-variant-numeric:tabular-nums}
+@media(max-width:560px){#detailColorLegend .detail-average-value{margin-left:0}}
+
+.detail-price-note{font-size:11px;line-height:1.7;color:#c4d8e5;margin:6px 0 12px}
+
+.tier-parts{display:block;color:#d7e5ee;font-size:11px;line-height:1.7;margin-top:5px;white-space:normal}
+
+.electric-baseline-status{display:block;font-size:11px;line-height:1.6;color:#c4d8e5;margin-top:5px}
+</style><style>
+#meterValues .source-tiles{display:grid;grid-template-columns:1fr;gap:7px}
+#meterValues .meter-tile{background:#112c3b66;border-radius:6px;padding:8px;min-width:0}
+#meterValues .meter-tile small{font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+@media(max-width:1000px){#meterValues .source-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#meterValues .source-group{display:block}#meterValues .source-group>header{display:flex;margin-bottom:7px}#meterValues .meter-tile strong{font-size:20px}#meterValues .meter-tile .meter-money{font-size:13px}}
+</style><style>#meterValues{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:1000px){#meterValues{grid-template-columns:1fr}}</style><style>
+/* Compact month/day summaries: side by side within each source. */
+#meterComparison{padding:12px 16px}
+#meterComparison .meter-heading{margin-bottom:8px;gap:12px;align-items:center}
+#meterComparison .meter-heading h3{font-size:15px;margin:0 0 3px}
+#meterComparison .meter-heading small{font-size:11px}
+#meterComparison .meter-heading .btn{padding:6px 12px;font-size:12px}
+#meterValues{gap:10px;align-items:start}
+#meterValues .source-group{padding:8px;min-width:0}
+#meterValues .source-group>header{margin:0 0 6px}
+#meterValues .source-tiles{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:8px}
+#meterValues .meter-tile{padding:8px 10px;min-width:0}
+#meterValues .meter-tile h4{font-size:11px;margin:0 0 4px}
+#meterValues .meter-tile strong{font-size:22px;line-height:1.2;display:block}
+#meterValues .meter-tile:last-child strong{font-size:20px}
+#meterValues .meter-money{font-size:14px;margin:4px 0 6px;line-height:1.25}
+#meterValues .meter-tile small{font-size:10px;line-height:1.5;opacity:.82}
+#meterValues .source-details{margin-top:5px;font-size:10px}
+#meterStatus{font-size:10px;line-height:1.5;margin:6px 0 0;opacity:.8}
+@media(max-width:1000px){#meterValues{grid-template-columns:1fr}}
+@media(max-width:560px){
+ #meterComparison{padding:10px}
+ #meterComparison .meter-heading h3{font-size:14px}
+ #meterValues .source-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #meterValues .meter-tile{padding:8px}
+ #meterValues .meter-tile strong,#meterValues .meter-tile:last-child strong{font-size:19px}
+ #meterValues .meter-money{font-size:12px}
+}
+@media(max-width:350px){#meterValues .source-tiles{grid-template-columns:1fr}}
+</style><style>#invoicePDFPanel [hidden]{display:none!important}#invoicePDFPages canvas{display:block;max-width:100%;height:auto;margin:0 auto 10px;background:white}#invoicePDFStatus{font-size:11px;line-height:1.6}#invoicePDFPanel .btn{padding:6px 10px;font-size:12px}</style><style>
+#evnServices{margin-top:12px;padding:12px 16px}.evn-services-heading{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap}.evn-services-heading h3{font-size:14px;margin:0}.evn-services-heading small{font-size:10px;opacity:.8}.evn-services-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.evn-service-card{border:1px solid #7695a455;border-left:3px solid #82cee6;border-radius:7px;padding:9px;background:#102c3c44;min-width:0}.evn-service-card h4{font-size:12px;margin:0 0 5px}.evn-service-value{font-size:20px;font-weight:700;line-height:1.3}.evn-service-card small{display:block;font-size:10px;line-height:1.5;opacity:.85;margin-top:5px}.evn-service-card p{font-size:11px;line-height:1.5;margin:4px 0}.evn-service-card.good{border-left-color:#6ed7ae}.evn-service-card.good .evn-service-value{color:#6ed7ae}.evn-service-card.warning{border-left-color:#ffd36b}.evn-service-card.warning .evn-service-value{color:#ffd36b}.evn-service-card.danger{border-left-color:#ff8585}.evn-service-card.danger .evn-service-value{color:#ff8585}.evn-service-card details{font-size:11px;margin-top:7px}.evn-service-card summary{cursor:pointer}.evn-outage-event{padding-top:5px;margin-top:5px;border-top:1px solid #91a9b333;overflow-wrap:anywhere}.evn-service-warning,#evnServicesError{color:#ffd36b;font-size:11px;line-height:1.5}#evnServicesError[hidden]{display:none!important}@media(max-width:600px){#evnServices{padding:10px}.evn-services-grid{grid-template-columns:1fr}.evn-service-value{font-size:18px}}
+</style><style>#customerHeaderGroup{min-width:0;max-width:100%}#customerHeader{min-width:0;overflow-wrap:anywhere}#accountSelect{min-width:0;max-width:420px}@media(max-width:767px){#accountSelect{max-width:100%}}</style></head>
+
+<body>
+    <!-- Animated SVG Background -->
+    <svg id="svg-bg" width="100%" height="100%" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+        <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#e961ab" />
+                <stop offset="100%" stop-color="#6b46c1" />
+            </linearGradient>
+            <linearGradient id="grad2" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#2ecc40" />
+                <stop offset="100%" stop-color="#3498db" />
+            </linearGradient>
+        </defs>
+        <circle id="bg-c1" cx="400" cy="300" r="180" fill="url(#grad1)" />
+        <circle id="bg-c2" cx="1600" cy="800" r="220" fill="url(#grad2)" />
+        <ellipse id="bg-e1" cx="1200" cy="200" rx="120" ry="60" fill="#fff" opacity="0.12" />
+    </svg>
+
+    <div class="content"> <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-2">
+            <div id="customerHeaderGroup" class="flex items-center mb-2 md:mb-0">
+                <div class="account-avatar" id="accountAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h1 id="customerHeader" class="text-xl md:text-xl font-bold">EVN MONITOR</h1>
+            </div>
+            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-3 w-full md:w-auto">
+                <select id="accountSelect" class="p-2 rounded-lg bg-gray-800 text-white w-full md:w-auto text-sm">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <select id="monthSelect" class="p-2 rounded-lg bg-gray-800 text-white w-full md:w-auto text-sm">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <select id="yearSelect" class="p-2 rounded-lg bg-gray-800 text-white w-full md:w-auto text-sm">
+                    <option value="all">Tất cả các năm</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <div class="header-buttons-container flex flex-row w-full md:w-auto gap-2">
+
+                    <button id="configBtn" class="btn text-xs md:text-sm px-2 py-1 flex-1 md:flex-none">
+                        <i class="fas fa-cog mr-1"></i>
+                        Cấu hình
+                    </button>
+                    <div class="flex-1 md:flex-none">
+                        <select id="themeSelect"
+                            class="p-2 rounded-lg bg-gray-800 text-white w-full md:w-auto text-sm theme-selector h-8 md:h-auto min-h-[32px]">
+                            <option value="dark-gradient">🌙 Dark Gradient</option>
+                            <option value="cyberpunk">⚡ Cyberpunk 2025</option>
+                            <option value="neon-dreams">🌈 Neon Dreams</option>
+                            <option value="aurora-borealis">✨ Aurora Borealis</option>
+                            <option value="synthwave">🌆 Synthwave</option>
+                            <option value="glassmorphism">🔮 Glassmorphism</option>
+                            <option value="neubrutalism">🔥 Neubrutalism</option>
+                            <option value="matrix-rain">💚 Matrix Rain</option>
+                            <option value="sunset-vibes">🌅 Sunset Vibes</option>
+                            <option value="ocean-depth">🌊 Ocean Depth</option>
+                            <option value="midnight-purple">💜 Midnight Purple</option>
+                            <option value="golden-hour">🌟 Golden Hour</option>
+                            <option value="forest-mist">🌲 Forest Mist</option>
+                            <option value="cosmic-dust">🪐 Cosmic Dust</option>
+                            <option value="tokyo-night">🗾 Tokyo Night</option>
+                            <option value="minimal-light">☀️ Minimal Light</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section id="meterComparison" class="card meter-comparison" aria-label="So sánh Electric Meter với EVN">
+          <div class="meter-heading"><div><h3>Điện năng · EVN và Electric Meter</h3><small id="meterAccountLabel">Số liệu tháng/ngày, ghi rõ mốc đọc và thời điểm đồng bộ</small></div><button type="button" id="meterRefreshBtn" class="btn">Làm mới</button></div>
+          <div id="meterValues" class="meter-values">Đang tải bộ đếm…</div>
+          <p id="meterStatus" class="meter-status" aria-live="polite"></p>
+        </section>
+
+        <section id="evnServices" class="card" aria-label="Tiền nợ và lịch mất điện">
+          <div class="evn-services-heading"><h3>Tiền nợ &amp; lịch mất điện</h3><small><span id="evnServicesAccount"></span> · 4 giờ/lần</small></div>
+          <div class="evn-services-grid">
+            <article id="evnDebt" class="evn-service-card" aria-live="polite"><h4>Tiền nợ EVN</h4><div>Đang tải…</div></article>
+            <article id="evnOutages" class="evn-service-card" aria-live="polite"><h4>Lịch mất điện</h4><div>Đang tải…</div></article>
+          </div>
+          <p id="evnServicesError" role="status" hidden></p>
+        </section>
+
+        <section class="card p-3" id="invoicePDFPanel" aria-label="Hóa đơn PDF" style="margin-top:12px">
+          <h3 class="text-base font-semibold mb-2">Hóa đơn PDF các tháng trước</h3>
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+            <label for="invoicePDFPeriod">Tháng</label>
+            <select id="invoicePDFPeriod" class="p-2 rounded bg-gray-800" style="min-width:140px" disabled><option>Đang tải…</option></select>
+            <button type="button" id="invoicePDFView" class="btn" disabled>Xem PDF</button>
+            <a id="invoicePDFDownload" class="btn" hidden>Tải PDF</a>
+            <a id="invoicePDFOpen" class="btn" target="_blank" rel="noopener" hidden>Mở riêng</a>
+            <button type="button" id="invoicePDFClose" class="btn" hidden>Đóng PDF</button>
+          </div>
+          <p id="invoicePDFStatus" class="meter-status" aria-live="polite"></p>
+          <div id="invoicePDFPages" hidden style="width:100%;max-height:70vh;overflow:auto;background:#e4e7eb;border-radius:6px;margin-top:10px;padding:8px" aria-label="Nội dung PDF tiền điện"></div>
+          <iframe id="invoicePDFFrame" title="Bản PDF tiền điện EVN" hidden style="width:100%;height:65vh;min-height:360px;border:1px solid #567888;border-radius:6px;margin-top:10px;background:#fff"></iframe>
+        </section>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"> <!-- Summary Card -->
+            <div class="card p-2 col-span-1"> <!-- Header with title -->
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-base font-semibold">Tổng Quan</h3>
+                </div>
+                <!-- Main Summary Stats -->
+                <div class="space-y-1 mb-3">
+                    <div class="flex items-center gap-2 text-sm">
+                        <i class="fas fa-coins text-yellow-400"></i>
+                        <span class="summary-label">Tổng hóa đơn có dữ liệu:</span>
+                        <span id="totalCost" class="summary-value">0</span>
+                        <span class="summary-unit">VND</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <i class="fas fa-calendar-alt text-purple-400"></i>
+                        <span class="summary-label">TB/tháng có hóa đơn:</span>
+                        <span id="avgMonthlyCost" class="summary-value">0</span>
+                        <span class="summary-unit">VND</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <i class="fas fa-bolt text-blue-400"></i>
+                        <span class="summary-label">Tiêu thụ/tháng:</span>
+                        <span id="avgMonthlyConsumption" class="summary-value">0</span>
+                        <span class="summary-unit">kWh</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <i class="fas fa-bolt text-green-400"></i>
+                        <span class="summary-label">Tiêu thụ/ngày:</span>
+                        <span id="avgDailyConsumption" class="summary-value">0</span>
+                        <span class="summary-unit">kWh</span>
+                    </div>
+                </div>
+
+
+                <!-- Recent Months Summary - Inside same card -->
+                <div class="grid grid-cols-2 gap-1" id="summaryContainer">
+                    <!-- Summary cards will be populated by JavaScript -->
+                </div>
+            </div><!-- Monthly Chart Card -->
+            <div class="card p-3 col-span-1 md:col-span-2">
+                <h3 class="text-base font-semibold mb-2">Tiêu Thụ Hàng Tháng</h3>
+                <div class="chart-container monthly-chart">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div> <!-- Search Card -->
+            <div class="card search-card p-3 col-span-1">
+                <h3 class="text-base font-semibold mb-2">Tìm Theo Ngày</h3>
+                <div class="date-search-container">
+                    <div class="date-inputs flex gap-2">
+                        <input type="date" id="startDate" class="w-full p-2 rounded-lg bg-gray-800 text-white text-sm">
+                        <input type="date" id="endDate" class="w-full p-2 rounded-lg bg-gray-800 text-white text-sm">
+                    </div>
+                    <button id="searchBtn" class="btn w-full text-white py-2 rounded-lg text-sm mt-2">
+                        <i class="fas fa-search mr-1"></i>Tìm kiếm
+                    </button>
+                </div>
+                <!-- Recent Days Data Display -->
+                <div class="recent-days-container mt-3 pt-3 border-t border-gray-700">
+                    <h4 class="text-sm font-medium mb-2">7 Ngày Gần Đây</h4>
+                    <div id="recentDaysData" class="recent-days-list">
+                        <!-- Dữ liệu sẽ được load bởi JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Chart Card -->
+            <div class="card p-3 col-span-1 md:col-span-2">
+                <h3 class="text-base font-semibold mb-2">Tiêu Thụ Hàng Ngày</h3>
+                <div class="flex items-center justify-between mb-2 gap-2">
+                    <div class="filter-segment flex-shrink-0">
+                        <button class="btn filter-btn text-xs px-2 py-1" data-range="7">7 ngày</button>
+                        <button class="btn filter-btn text-xs px-2 py-1" data-range="30">30 ngày</button>
+                        <button class="btn filter-btn text-xs px-2 py-1" data-range="90">90 ngày</button>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <button id="toggleDetailTable" class="btn text-xs px-2 py-1">Hiện bảng chi tiết</button>
+                    </div>
+                </div>
+                <div class="chart-container daily-chart">
+                    <canvas id="dailyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loader" id="mainLoader"></div>
+
+    <!-- Responsive Data Summary Bar (mobile only) -->
+    <div id="summaryBar"
+        class="fixed bottom-0 left-0 w-full bg-gray-900 bg-opacity-90 text-white flex justify-around items-center py-2 z-30 md:hidden"
+        style="display:none;">
+        <div class="flex flex-col items-center">
+            <span class="text-xs">Tổng tiền</span>
+            <span id="barTotalCost" class="font-bold"></span>
+        </div>
+        <div class="flex flex-col items-center">
+            <span class="text-xs">TB/Tháng</span>
+            <span id="barAvgMonthlyCost" class="font-bold"></span>
+        </div>
+        <div class="flex flex-col items-center">
+            <span class="text-xs">TB/Ngày</span>
+            <span id="barAvgDailyConsumption" class="font-bold"></span>
+        </div>
+    </div> <!-- Detail Table Modal -->
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Chi Tiết Tiêu Thụ Điện</h3>
+                <button id="modalCloseBtn" class="modal-close">&times;</button>
+            </div>
+
+            <!-- Statistics Summary (Fixed) -->
+            <div id="tableStats" class="bg-gray-800 p-3 rounded-lg mb-3 text-sm">
+                <!-- Statistics will be populated by JavaScript -->
+            </div>
+
+            <div class="overflow-x-auto">
+                <table id="detailTable" class="modal-table">
+                    <thead>
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Tiêu thụ (kWh)</th>
+                            <th>Tiền điện (VND, gồm VAT)</th>
+                            <th>Bậc điện / đơn giá (đã gồm VAT)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Config Modal (Simple, static, no overlay, no billing-cycle-modal class) -->
+    <div id="configModal" class="hidden"
+        style="position:fixed;z-index:1000;top:50px;left:50%;transform:translateX(-50%);background:#222;color:#fff;border-radius:12px;box-shadow:0 4px 32px #0008;width:95vw;max-width:420px;padding:0;">
+        <div style="padding:0 1.5rem 1.5rem 1.5rem;">
+            <div class="flex items-center justify-between py-3 border-b border-gray-700">
+                <h3 class="text-lg font-semibold"><i class="fas fa-sliders-h"></i> Cấu hình tài khoản</h3>
+                <button id="closeConfigModal" type="button"
+                    style="font-size:2rem;line-height:1;color:#fff;background:none;border:none;outline:none;cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body pt-3">
+                <form id="configForm">
+                    <div class="mb-4">
+                        <label for="customer_name" class="block font-bold mb-1">Tên khách hàng</label>
+                        <small>Mã khách hàng: <b id="customerNameAccount"></b></small>
+                        <input type="text" id="customer_name" maxlength="80" autocomplete="off" placeholder="Tên riêng cho mã khách hàng"
+                            class="w-full p-2 border rounded focus:outline-none focus:ring focus:border-blue-400 bg-gray-900 text-white">
+                        <small id="customerNameHint" style="display:block;font-size:11px;line-height:1.5;margin-top:5px"></small>
+                    </div>
+
+
+                    <div class="flex gap-2 mt-4 justify-end">
+                        <button type="submit" id="customerNameSave" class="btn btn-primary save-btn">Lưu tên khách hàng</button>
+                    </div>
+                    <div class="msg mt-3" id="msg"></div>
+
+                </form>
+                <form id="meterConfigForm">
+                  <h4 class="font-bold">Bộ đếm Electric Meter</h4>
+                  <div>Mã khách hàng: <b id="meterConfigAccount"></b></div>
+                  <label for="meterSource">Sensor điện năng tích lũy</label>
+                  <select id="meterSource"><option value="">Đang tải…</option></select>
+                  <label class="meter-check"><input type="checkbox" id="meterMayReset" checked> Sensor nguồn có thể reset về 0</label>
+                  <small>Hai bộ đếm dùng đầu kỳ do EVN xác nhận: thực tế hiện tại và tại mốc EVN đã cung cấp. Khôi phục từ lịch sử chi tiết + thống kê dài hạn trong 32 ngày. Không reset công tơ vật lý.</small>
+                  <details style="margin-top:12px"><summary>Gốc Electric Meter tại mốc EVN chốt</summary>
+                    <label for="meterBaselineAt">Thời điểm chốt đã xác nhận (giờ Việt Nam)</label><input type="datetime-local" step="0.001" id="meterBaselineAt" class="w-full p-2 bg-gray-900 rounded">
+                    <label for="meterBaselineValue">Chỉ số của Electric Meter tại mốc đó (đơn vị sensor nguồn)</label><input type="number" step="any" min="0" id="meterBaselineValue" class="w-full p-2 bg-gray-900 rounded" placeholder="Không nhập chỉ số EVN">
+                    <input type="checkbox" id="meterApprox" hidden disabled><small>Mốc đầu lấy trực tiếp từ API EVN mới. Electric lấy gốc riêng tại cùng mốc; EVN mới là nguồn chuẩn đối chiếu. Nếu lịch sử Electric chỉ còn theo giờ thì ghi rõ độ chính xác của gốc.</small>
+                  </details>
+                  <button type="button" id="meterCheckBtn" class="btn">Kiểm tra sensor nguồn</button>
+                  <div id="meterCheckResult" role="status" style="font-size:12px;line-height:1.7;margin-top:10px"></div>
+                  <small>Chỉ khi chọn sensor và lưu mới tạo hai bộ đếm theo mã khách hàng; mã chưa chọn không tạo bộ đếm.</small>
+                  <button type="submit" id="meterSaveBtn" class="btn btn-primary" disabled>Lưu bộ đếm cho mã này</button>
+                  <div id="meterConfigMsg" role="status"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- JavaScript Modules -->
+    <script src="assets/js/api-client.js?v=20261027-opt1"></script>
+    <script src="assets/js/data.js?v=20261027-opt1"></script>
+    <script src="assets/js/charts.js?v=20261027-daily-controls1"></script>
+    <script src="assets/js/ui.js?v=20261028-names1"></script>
+    <script src="assets/js/main.js?v=20261028-names1"></script>
+    <script src="assets/js/config-modal.js?v=20261028-names1"></script>
+    <script src="assets/js/meter-comparison.js?v=20261028-services1"></script>
+    <!-- Đảm bảo KHÔNG có bất kỳ lệnh nào như showConfigModal() hoặc document.getElementById('configModal').classList.remove('hidden') chạy khi load trang. -->
+    <script src="assets/js/invoice-pdf.js?v=20261027-opt1"></script>
+<footer style="text-align:center;padding:12px;opacity:.7">Source by BlackSmartHome - Custom by honganhlqt</footer>
+</body>
+
+</html>

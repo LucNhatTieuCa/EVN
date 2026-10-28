@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "tariff_type": "household_one_household",
+  "official_source": "https://www.evn.com.vn/d/vi-VN/news/Bieu-gia-ban-le-dien-theo-Quyet-dinh-so-1279QD-BCT-ngay-0952025-cua-Bo-Cong-Thuong-60-28-502668",
+  "tariff_effective_from": "2025-05-10",
+  "vat_default_percent": 8,
+  "invoice_items": {}
+}

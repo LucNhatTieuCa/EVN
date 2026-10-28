@@ -1,0 +1,59 @@
+/* EVN · night landscape, matching the user's Homepage reference. */
+:root { color-scheme: dark; --evn-text:#e2eef7; --evn-muted:#bdd1e0; --evn-accent:#85c9ed; }
+html { min-height:100%; background:#0a1d2a; }
+body,body[data-theme] {
+ min-height:100vh; margin:0; padding:26px 22px 40px; color:var(--evn-text)!important;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ background:linear-gradient(rgba(5,18,30,.22),rgba(8,19,31,.42)),url('../images/night-landscape.svg') center/cover fixed!important;
+ animation:none!important; background-attachment:fixed!important;
+}
+*,*::before,*::after { box-sizing:border-box; }
+#svg-bg { display:none!important; }
+body .content { width:100%; max-width:1460px; margin:0 auto; padding:0; }
+body .content > :first-child { padding:0 0 18px; margin-bottom:12px; gap:14px; }
+body h1 { color:#e4eff7!important; font-size:20px!important; font-weight:500!important; letter-spacing:-.025em; }
+body h3,body .summary-month-card h4 { color:#d7eafa!important; text-shadow:none!important; font-weight:500; }
+body .card,body[data-theme] .card {
+ background:rgba(54,80,96,.70)!important; border:1px solid rgba(172,204,219,.17)!important;
+ border-radius:8px!important; padding:16px!important; margin-bottom:0!important;
+ box-shadow:0 6px 24px rgba(0,7,18,.12)!important; backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px);
+ transition:background .16s!important; transform:none!important;
+}
+body .card:hover { background:rgba(62,91,107,.78)!important; transform:none!important; }
+body .content > .grid { gap:16px!important; }
+body .summary-month-card {
+ background:rgba(19,46,61,.38)!important; border:1px solid rgba(172,204,219,.1)!important;
+ border-radius:6px!important; box-shadow:none!important; padding:11px!important;
+}
+body #summaryContainer { gap:8px!important; margin-top:16px; }
+body .summary-label,body .summary-unit,body .summary-stat-row { color:var(--evn-muted)!important; }
+body .summary-value,body .summary-stat-inline { color:var(--evn-text)!important; }
+body .summary-change { background:rgba(8,28,42,.32)!important; border-color:rgba(172,204,219,.12)!important; }
+body .chart-container,body .monthly-chart,body .daily-chart {
+ background:rgba(17,42,57,.24)!important; border:1px solid rgba(172,204,219,.08)!important; border-radius:6px!important;
+ padding:12px 6px!important; margin-top:12px;
+}
+body select,body input[type=date],body input[type=number],body input[type=text] {
+ background:rgba(9,29,43,.72)!important; color:#dceaf6!important; border:1px solid rgba(172,204,219,.2)!important;
+ border-radius:5px!important; box-shadow:none!important; min-height:36px;
+}
+body select:focus,body input:focus { outline:2px solid #85c9ed!important; outline-offset:2px; }
+body select option { background:#183343!important; color:#dceaf6!important; }
+body .btn,body button.btn { background:#31576b!important; color:#e5f2fa!important; border:1px solid rgba(156,201,222,.22)!important; border-radius:5px!important; box-shadow:none!important; text-shadow:none!important; }
+body .btn:hover { background:#3b6a80!important; transform:none!important; }
+body .btn.active,body .btn[aria-pressed=true] { background:#44758b!important; }
+body .account-avatar { background:#2c6078!important; color:#d6efff; border:1px solid rgba(172,204,219,.25); box-shadow:none!important; }
+body #searchResult,body #searchResults,body .search-results-container { background:rgba(9,29,43,.36)!important; border-color:rgba(172,204,219,.13)!important; border-radius:6px; }
+body #searchResult li { border-bottom-color:rgba(172,204,219,.08)!important; }
+body #searchResult li:hover { background:rgba(133,201,237,.08)!important; }
+body .text-purple-400,body .text-pink-400 { color:#8ecbea!important; }
+body .billing-cycle-modal .modal-content,body .modal-content { background:#1d3748!important; color:#dbe9f4!important; border:1px solid rgba(172,204,219,.2)!important; }
+body #themeSelect { max-width:160px; }
+@media(min-width:1024px) { body .chart-container { height:290px; } }
+@media(max-width:767px) {
+ body,body[data-theme] { padding:16px 12px 28px; background-attachment:scroll!important; }
+ body .card { padding:13px!important; } body .content > :first-child { align-items:stretch; }
+ body .content > .grid { gap:12px!important; } body #themeSelect { max-width:none; }
+ body .summary-month-card { padding:9px!important; } body h1 { font-size:18px!important; }
+}
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; } }

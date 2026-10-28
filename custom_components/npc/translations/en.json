@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "credentials": {
+        "title": "🔐 Login Information",
+        "data": {
+          "username": "👤 Username",
+          "password": "🔒 Password"
+        },
+        "data_description": {
+          "username": "Enter username to login to EVN system",
+          "password": "Enter password to login to EVN system"
+        },
+        "description": "Sign in to EVN CPC. All linked customers are added automatically. Data and invoices download sequentially; see progress in EVN Monitor."
+      }
+    },
+    "abort": {
+      "already_configured": "This customer is already configured.",
+      "account_not_linked": "Customer is not linked to this login."
+    },
+    "error": {
+      "invalid_auth": "❌ Login failed!\n\n❗ Please check:\n• Username\n• Password\n• Network connection",
+      "password_required": "Nhập đầy đủ tên đăng nhập và mật khẩu.",
+      "cannot_connect": "Không kết nối được EVN. Vui lòng thử lại.",
+      "account_not_linked": "Mã không thuộc tài khoản đăng nhập hoặc tài khoản không có đủ quyền cho các mã đang dùng chung.",
+      "no_linked_accounts": "EVN chưa trả về mã khách hàng nào cho tài khoản này.",
+      "interactive_auth": "EVN yêu cầu CAPTCHA hoặc đổi mật khẩu. Hoàn tất trên ứng dụng EVN trước.",
+      "save_failed": "Chưa lưu được tài khoản. Dữ liệu hiện có không bị xóa.",
+      "concurrent_change": "Cấu hình đã thay đổi ở nơi khác. Hãy mở lại và thử lại."
+    },
+    "progress": {
+      "discovering": "Signing in, discovering all customers and saving configuration. Data and PDFs will load sequentially in EVN Monitor."
+    }
+  },
+  "options": {
+    "step": {
+      "credentials": {
+        "title": "Tài khoản EVN",
+        "description": "Used by: {accounts}. Leave password empty to keep it.",
+        "data": {
+          "username": "Tên đăng nhập / số điện thoại EVN",
+          "password": "Mật khẩu mới (để trống để giữ nguyên)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Không đăng nhập được. Kiểm tra tên đăng nhập và mật khẩu.",
+      "password_required": "Nhập mật khẩu khi đổi tên đăng nhập hoặc cấu hình lần đầu.",
+      "cannot_connect": "Không kết nối được EVN. Chưa thay đổi cấu hình.",
+      "account_not_linked": "Tài khoản không có đủ quyền truy cập các mã khách hàng đang cấu hình.",
+      "interactive_auth": "EVN yêu cầu CAPTCHA hoặc đổi mật khẩu. Hoàn tất trên ứng dụng EVN trước.",
+      "concurrent_change": "Cấu hình vừa thay đổi ở nơi khác. Hãy mở lại và thử lại.",
+      "save_failed": "Chưa lưu được tài khoản. Liên kết hiện có được giữ; kiểm tra hệ thống trước khi thử lại."
+    }
+  }
+}
