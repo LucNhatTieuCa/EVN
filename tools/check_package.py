@@ -35,6 +35,8 @@ class LocalAssets(HTMLParser):
             if not target.exists():errors.append('Missing local asset: '+str(target.relative_to(root)))
 for file in (component/'webui').glob('*.html'):LocalAssets(file).feed(file.read_text())
 manifest=json.loads((component/'manifest.json').read_text())
+if list(manifest) != ['domain', 'name'] + sorted(set(manifest) - {'domain', 'name'}):
+    errors.append('Manifest keys must be domain, name, then alphabetical')
 for key in ('documentation','issue_tracker'):
     if not manifest.get(key):pending.append('Set destination repository metadata: '+key)
 result={'code_checks':'PASS' if not errors else 'FAIL','errors':errors,'publication_pending':pending,'strict_release_ready':not errors and not pending}
