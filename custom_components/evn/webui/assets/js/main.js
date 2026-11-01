@@ -4,7 +4,7 @@ class ElectricityApp {
         this.dataManager = new DataManager();
         this.chartManager = new ChartManager();
         this.uiManager = new UIManager();
-        this.currentYear = new Date().getFullYear();
+        this.currentYear = this.dataManager.getCalendarToday().getFullYear();
 
         this.init();
     } async init() {
@@ -602,7 +602,7 @@ class ElectricityApp {
 
         // Lấy dữ liệu tháng tương ứng
         const uniqueMonths = this.dataManager.getUniqueMonths();
-        const targetMonth = uniqueMonths[parseInt(cardIndex)];
+        const targetMonth = card.dataset.monthYear || uniqueMonths[parseInt(cardIndex)];
 
         if (targetMonth) {
             // Kiểm tra xem có phải "Kỳ này" không

@@ -376,7 +376,7 @@ class DataManager {
                 const key = `${year}-${month}`;
                 const consumption = typeof item["Điện tiêu thụ (KWh)"] === 'number'
                     ? item["Điện tiêu thụ (KWh)"]
-                    : parseFloat(item["iện tiêu thụ (KWh)"]) || 0;
+                    : parseFloat(item["Điện tiêu thụ (KWh)"]) || 0;
 
                 if (!monthlyMap.has(key)) {
                     monthlyMap.set(key, {
@@ -563,7 +563,34 @@ class DataManager {
 
         return '';
     }    // Lấy các tháng duy nhất từ dữ liệu (hỗ trợ chu kỳ thanh toán)
+    getCalendarToday() {
+        const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));
+        return new Date(Number(parts.year),Number(parts.month)-1,Number(parts.day));
+    }
+
+    hasCurrentApiMonth(month,year) {
+        const stamp=this.currentPeriodFromSensor?.ngay_dau_ky;
+        if(!stamp)return false;
+        const date=new Date(stamp);if(Number.isNaN(date.getTime()))return false;
+        const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit'}).formatToParts(date).map(p=>[p.type,p.value]));
+        return Number(parts.year)===year&&Number(parts.month)===month;
+    }
+
     getUniqueMonths(filterYear = null) {
+        const cycle=this.getBillingCycle();
+        if(cycle.type!=='calendar'&&cycle.startDay!==1)return this.getStoredUniqueMonths(filterYear);
+        const targetYear=this.normalizeYearValue(filterYear),today=this.getCalendarToday();
+        const keys=new Set(this.getStoredUniqueMonths(filterYear));
+        for(const row of [...(this.monthlyData?.SanLuong||[]),...(this.monthlyData?.TienDien||[])]) {
+            const year=this.normalizeYearValue(row.Năm),month=parseInt(row.Tháng,10);
+            if(year!==null&&month>=1&&month<=12&&(targetYear===null||year===targetYear))keys.add(`${String(month).padStart(2,'0')}-${year}`);
+        }
+        if(targetYear===null||targetYear===today.getFullYear())keys.add(`${String(today.getMonth()+1).padStart(2,'0')}-${today.getFullYear()}`);
+        return [...keys].sort((a,b)=>{const [am,ay]=a.split('-').map(Number),[bm,by]=b.split('-').map(Number);return by-ay||bm-am;});
+    }
+
+    getStoredUniqueMonths(filterYear = null) {
+
         const billingCycle = this.getBillingCycle();
 
         // Đảm bảo dailyData là array
@@ -732,221 +759,54 @@ class DataManager {
 
     // Tính trend cho summary cards theo chu kỳ thanh toán
     calculateTrendData(recentMonths) {
-        const billingCycle = this.getBillingCycle();
-        const today = new Date();
-
-        // Ưu tiên dữ liệu từ sensor, nếu không có thì tính toán
-        const sensorData = this.currentPeriodFromSensor;
-
-        return recentMonths.map((monthYear, index) => {
-            const monthNum = monthYear.split('-')[0];
-            const isCurrentPeriod = index === 0; // Kỳ đầu tiên là kỳ hiện tại
-
-            // Nếu là kỳ hiện tại, sử dụng dữ liệu từ sensor
-            if (isCurrentPeriod) {
-                // Lấy dữ liệu chi tiết cho min/max/avg từ dailyData
-                const periodInfo = this.tinhngaydauky(billingCycle.startDay, today);
-                const detailData = this.dailyData.filter(d => {
-                    if (!d.Ngày || d["Điện tiêu thụ (kWh)"] <= 0) return false;
-                    const dayDate = new Date(d.Ngày.split('-').reverse().join('-'));
-                    return dayDate >= periodInfo.start && dayDate <= today;
-                });
-
-                let min = 0, max = 0, avg = 0, minDay = '', maxDay = '';
-                let trend = 'flat', trendValue = 0, trendPercent = 0, badge = '';
-                let sparkline = '';
-
-                // Sử dụng dữ liệu từ sensor nếu có
-                let totalConsumption = 0;
-                let monthlyCost = 0;
-
-                // BẮT BUỘC lấy từ sensor
-                if (sensorData) {
-                    totalConsumption = sensorData.tieu_thu_ky_nay || 0;
-                    monthlyCost = sensorData.tien_dien_ky_nay;
-                } else {
-                    console.warn('⚠️ No sensor data available for current period!');
-                }
-
-                if (detailData.length > 0) {
-                    const values = detailData.map(d => d["Điện tiêu thụ (kWh)"]);
-                    min = Math.min(...values);
-                    max = Math.max(...values);
-                    avg = values.reduce((a, b) => a + b, 0) / values.length;
-                    minDay = detailData.find(d => d["Điện tiêu thụ (kWh)"] === min)?.Ngày || '';
-                    maxDay = detailData.find(d => d["Điện tiêu thụ (kWh)"] === max)?.Ngày || '';
-
-                    // Tính trend cho kỳ hiện tại so với kỳ trước đó
-                    if (recentMonths.length > 1) {
-                        const prevMonthYear = recentMonths[1];
-                        let prevArr;
-
-                        if (billingCycle.type === 'calendar' || (billingCycle.type === 'cycle' && billingCycle.startDay === 1)) {
-                            prevArr = this.dailyData.filter(d =>
-                                d.Ngày && d.Ngày.slice(3, 10) === prevMonthYear && d["Điện tiêu thụ (kWh)"] > 0
-                            );
-                        } else {
-                            prevArr = this.getDataByBillingPeriod(prevMonthYear, billingCycle.startDay)
-                                .filter(d => d["Điện tiêu thụ (kWh)"] > 0);
-                        }
-
-                        const prevAvg = prevArr.length > 0 ?
-                            prevArr.map(d => d["Điện tiêu thụ (kWh)"]).reduce((a, b) => a + b, 0) / prevArr.length : 0;
-
-                        if (prevAvg > 0 && avg > 0) {
-                            trendValue = avg - prevAvg;
-                            trendPercent = (trendValue / prevAvg) * 100;
-
-                            if (trendValue > 0.01) trend = 'up';
-                            else if (trendValue < -0.01) trend = 'down';
-
-                            if (trendPercent > 20) badge = '<span class="trend-badge">Tăng mạnh</span>';
-                            else if (trendPercent < -20) badge = '<span class="trend-badge">Giảm mạnh</span>';
-                        }
-                    }
-
-                    // Tạo sparkline SVG
-                    const points = values.map((v, i) =>
-                        `${i * (60 / (values.length - 1))},${18 - (v - min) / (max - min + 0.01) * 16}`
-                    ).join(' ');
-                    sparkline = `<svg class='sparkline'><polyline fill='none' stroke='#e961ab' stroke-width='2' points='${points}'/></svg>`;
-                }
-
-                return {
-                    monthNum,
-                    monthYear,
-                    min,
-                    max,
-                    avg,
-                    minDay,
-                    maxDay,
-                    trend,
-                    trendValue,
-                    trendPercent,
-                    badge,
-                    sparkline,
-                    dataCount: detailData.length,
-                    isCurrentPeriod: true,
-                    totalConsumption,
-                    monthlyCost
-                };
-            }
-
-            // Kỳ đã qua: lấy dữ liệu theo chu kỳ thanh toán
-            let monthDataArr;
-            if (billingCycle.type === 'calendar' || (billingCycle.type === 'cycle' && billingCycle.startDay === 1)) {
-                monthDataArr = this.dailyData.filter(d =>
-                    d.Ngày && d.Ngày.slice(3, 10) === monthYear && d["Điện tiêu thụ (kWh)"] > 0
-                );
+        const cycle=this.getBillingCycle(),today=this.getCalendarToday();
+        const calendar=cycle.type==='calendar'||cycle.startDay===1;
+        const valid=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))&&Number(value)>=0;
+        const rowsFor=key=>(calendar?(this.dailyData||[]).filter(row=>row.Ngày?.slice(3)===key):this.getDataByBillingPeriod(key,cycle.startDay)).filter(row=>valid(row['Điện tiêu thụ (kWh)']));
+        return recentMonths.map((monthYear,index)=>{
+            const [month,year]=monthYear.split('-').map(Number);
+            const isCurrentPeriod=calendar?month===today.getMonth()+1&&year===today.getFullYear():this.isCurrentPeriodMonth(monthYear,index);
+            const rows=rowsFor(monthYear),values=rows.map(row=>Number(row['Điện tiêu thụ (kWh)']));
+            const min=values.length?Math.min(...values):null,max=values.length?Math.max(...values):null;
+            const avg=values.length?values.reduce((a,b)=>a+b,0)/values.length:null;
+            const match=row=>Number(row.Tháng)===month&&this.normalizeYearValue(row.Năm)===year;
+            const production=this.monthlyData?.SanLuong?.find(match),money=this.monthlyData?.TienDien?.find(match);
+            const hasOfficialBill=Boolean(money&&valid(money['Tiền Điện']));
+            let totalConsumption=null,monthlyCost=null,periodStatus='';
+            if(isCurrentPeriod) {
+                const api=this.currentPeriodFromSensor;
+                const matches=!calendar||this.hasCurrentApiMonth(month,year);
+                if(matches&&valid(api?.tieu_thu_ky_nay))totalConsumption=Number(api.tieu_thu_ky_nay);
+                if(totalConsumption!==null&&matches&&valid(api?.tien_dien_ky_nay))monthlyCost=Number(api.tien_dien_ky_nay);
+                periodStatus=totalConsumption===null?'Chờ EVN cập nhật':'Tạm tính · Theo API EVN';
             } else {
-                monthDataArr = this.getDataByBillingPeriod(monthYear, billingCycle.startDay)
-                    .filter(d => d["Điện tiêu thụ (kWh)"] > 0);
-            }
-
-            let min = 0, max = 0, avg = 0, minDay = '', maxDay = '';
-            let trend = 'flat', trendValue = 0, trendPercent = 0, badge = '';
-            let sparkline = '';
-            let totalConsumption = 0, monthlyCost = 0;
-
-            if (monthDataArr.length > 0) {
-                const values = monthDataArr.map(d => d["Điện tiêu thụ (kWh)"]);
-                min = Math.min(...values);
-                max = Math.max(...values);
-                avg = values.reduce((a, b) => a + b, 0) / values.length;
-                totalConsumption = values.reduce((a, b) => a + b, 0);
-                minDay = monthDataArr.find(d => d["Điện tiêu thụ (kWh)"] === min)?.Ngày || '';
-                maxDay = monthDataArr.find(d => d["Điện tiêu thụ (kWh)"] === max)?.Ngày || '';
-
-                // Tìm dữ liệu tiền điện từ monthlyData (theo cả Tháng và Năm)
-                const [monthStr, yearStr] = monthYear.split('-');
-                const targetYear = this.normalizeYearValue(yearStr);
-                const monthlyDataItem = this.monthlyData?.TienDien?.find(item => {
-                    const itemMonth = item.Tháng.toString().padStart(2, '0');
-                    const itemYear = this.normalizeYearValue(item.Năm) || new Date().getFullYear();
-                    const targetMonth = monthNum.toString().padStart(2, '0');
-                    return itemMonth === targetMonth && itemYear === targetYear;
-                });
-
-                if (monthlyDataItem && monthlyDataItem["Tiền Điện"]) {
-                    monthlyCost = parseInt(monthlyDataItem["Tiền Điện"] || 0);
-                } else {
-                    if (totalConsumption > 0) {
-                        monthlyCost = null; // No issued bill: do not invent historical money.
-                    } else {
-                        monthlyCost = 0;
-                    }
+                if(hasOfficialBill&&valid(production?.['Điện tiêu thụ (KWh)']))totalConsumption=Number(production['Điện tiêu thụ (KWh)']);
+                else if(values.length)totalConsumption=Math.round(values.reduce((a,b)=>a+b,0)*1e6)/1e6;
+                else if(valid(production?.['Điện tiêu thụ (KWh)']))totalConsumption=Number(production['Điện tiêu thụ (KWh)']);
+                if(hasOfficialBill)monthlyCost=Number(money['Tiền Điện']);
+                else {
+                    const length=new Date(year,month,0).getDate(),uniqueDays=new Set(rows.map(row=>Number(row.Ngày.slice(0,2))));
+                    const complete=calendar&&uniqueDays.size===length&&Array.from({length},(_,i)=>i+1).every(day=>uniqueDays.has(day));
+                    if(complete&&rows.every(row=>valid(row['Tiền điện (VND)'])))monthlyCost=rows.reduce((sum,row)=>sum+Number(row['Tiền điện (VND)']),0);
                 }
-
-                // Tính trend so với chu kỳ trước
-                if (index < recentMonths.length - 1) {
-                    const nextMonthYear = recentMonths[index + 1];
-                    let prevArr;
-
-                    if (billingCycle.type === 'calendar' || (billingCycle.type === 'cycle' && billingCycle.startDay === 1)) {
-                        prevArr = this.dailyData.filter(d =>
-                            d.Ngày && d.Ngày.slice(3, 10) === nextMonthYear && d["Điện tiêu thụ (kWh)"] > 0
-                        );
-                    } else {
-                        prevArr = this.getDataByBillingPeriod(nextMonthYear, billingCycle.startDay)
-                            .filter(d => d["Điện tiêu thụ (kWh)"] > 0);
-                    }
-
-                    const prevAvg = prevArr.length > 0 ?
-                        prevArr.map(d => d["Điện tiêu thụ (kWh)"]).reduce((a, b) => a + b, 0) / prevArr.length : 0;
-
-                    if (prevAvg > 0 && avg > 0) {
-                        trendValue = avg - prevAvg;
-                        trendPercent = (trendValue / prevAvg) * 100;
-
-                        if (trendValue > 0.01) trend = 'up';
-                        else if (trendValue < -0.01) trend = 'down';
-
-                        // Badge nếu tăng/giảm mạnh
-                        if (trendPercent > 20) badge = '<span class="trend-badge">Tăng mạnh</span>';
-                        else if (trendPercent < -20) badge = '<span class="trend-badge">Giảm mạnh</span>';
-                    }
-                }
-
-                // Tạo sparkline SVG
-                const points = values.map((v, i) =>
-                    `${i * (60 / (values.length - 1))},${18 - (v - min) / (max - min + 0.01) * 16}`
-                ).join(' ');
-                sparkline = `<svg class='sparkline'><polyline fill='none' stroke='#e961ab' stroke-width='2' points='${points}'/></svg>`;
+                periodStatus=hasOfficialBill?'Hóa đơn EVN':totalConsumption===null?'Chưa có dữ liệu':'Tạm tính · Chờ hóa đơn EVN';
+                if(!hasOfficialBill&&calendar&&rows.length&&rows.length<new Date(year,month,0).getDate())periodStatus+=` · ${rows.length} ngày có dữ liệu`;
             }
-
-            // Closed months use billed production and amounts, never daily sums.
-            const closedYear = this.normalizeYearValue(monthYear.split('-')[1]);
-            const matchesBill = item => parseInt(item.Tháng,10) === parseInt(monthNum,10) && this.normalizeYearValue(item.Năm) === closedYear;
-            const officialProduction = this.monthlyData?.SanLuong?.find(matchesBill);
-            const officialMoney = this.monthlyData?.TienDien?.find(matchesBill);
-            if (officialProduction) totalConsumption = Number(officialProduction["Điện tiêu thụ (KWh)"]);
-            monthlyCost = officialMoney ? Number(officialMoney["Tiền Điện"]) : 0;
-            return {
-                monthNum,
-                monthYear,
-                min,
-                max,
-                avg,
-                minDay,
-                maxDay,
-                trend,
-                trendValue,
-                trendPercent,
-                badge,
-                sparkline,
-                dataCount: monthDataArr.length,
-                isCurrentPeriod: false,
-                hasOfficialBill: Boolean(officialMoney),
-                totalConsumption,
-                monthlyCost
-            };
+            const previous=recentMonths[index+1],old=previous?rowsFor(previous):[];
+            const previousAvg=old.length?old.reduce((sum,row)=>sum+Number(row['Điện tiêu thụ (kWh)']),0)/old.length:null;
+            const trendValue=avg!==null&&previousAvg!==null?avg-previousAvg:null;
+            const trendPercent=trendValue!==null&&previousAvg>0?100*trendValue/previousAvg:null;
+            const trend=trendValue===null?'unknown':trendValue>.01?'up':trendValue<-.01?'down':'flat';
+            return {monthNum:month,monthYear,min,max,avg,minDay:rows.find(row=>Number(row['Điện tiêu thụ (kWh)'])===min)?.Ngày||'',maxDay:rows.find(row=>Number(row['Điện tiêu thụ (kWh)'])===max)?.Ngày||'',
+                trend,trendValue,trendPercent,badge:'',sparkline:'',dataCount:rows.length,isCurrentPeriod,hasOfficialBill,
+                isEstimate:!hasOfficialBill,totalConsumption,monthlyCost,periodStatus};
         });
     }
 
     // Tính tiền điện theo bậc thang (từ NPC utils.py)
     calculateCurrentPeriod() {
         const billingCycle = this.getBillingCycle();
-        const today = new Date();
+        const today = this.getCalendarToday();
 
         // Tính chu kỳ hiện tại
         const currentPeriod = this.tinhngaydauky(billingCycle.startDay, today);
@@ -973,7 +833,7 @@ class DataManager {
         }
 
         // ƯU TIÊN: Lấy dữ liệu từ sensor API nếu có
-        if (this.currentPeriodFromSensor && Number.isFinite(this.currentPeriodFromSensor.tieu_thu_ky_nay)) {
+        if (this.currentPeriodFromSensor && Number.isFinite(this.currentPeriodFromSensor.tieu_thu_ky_nay) && (billingCycle.startDay!==1&&billingCycle.type!=='calendar' || this.hasCurrentApiMonth(displayMonth,displayYear))) {
             const consumption = this.currentPeriodFromSensor.tieu_thu_ky_nay;
             const cost = this.currentPeriodFromSensor.tien_dien_ky_nay;
             const billCalculation = {details:{source:'EVN API'}};
@@ -1020,7 +880,7 @@ class DataManager {
 
     // Lấy danh sách các năm có trong dữ liệu
     getAvailableYears() {
-        const years = new Set();
+        const years = new Set([this.getCalendarToday().getFullYear()]);
 
         // Lấy từ monthly data
         if (this.monthlyData && this.monthlyData.SanLuong) {
@@ -1068,7 +928,7 @@ class DataManager {
         });
 
         aggregated.TienDien.forEach(item => {
-            if (!item) return;
+            if (!item || item["Tiền Điện"]===null || item["Tiền Điện"]===undefined) return;
             const month = parseInt(item.Tháng, 10);
             const yearValue = this.normalizeYearValue(item.Năm);
             if (!month || yearValue === null) return;
@@ -1081,7 +941,7 @@ class DataManager {
         const months = [];
         if (targetYear === null) {
             const currentPeriod = this.calculateCurrentPeriod();
-            const today = new Date();
+            const today = this.getCalendarToday();
             const endMonth = currentPeriod ? currentPeriod.month : today.getMonth() + 1;
             const endYear = currentPeriod ? currentPeriod.year : today.getFullYear();
 
@@ -1105,10 +965,10 @@ class DataManager {
             const key = `${yearValue}-${month}`;
             const consumption = currentPeriodKey === key
                 ? currentPeriod.consumption
-                : (consumptionMap.get(key) || 0);
+                : (consumptionMap.get(key) ?? null);
             const cost = currentPeriodKey === key
                 ? currentPeriod.cost
-                : (costMap.get(key) || 0);
+                : (costMap.get(key) ?? null);
 
             SanLuong.push({
                 Tháng: month,

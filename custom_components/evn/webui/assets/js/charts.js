@@ -56,7 +56,7 @@ class ChartManager {
             // Dùng parseFloat thay vì parseInt để giữ số thập phân (kWh)
             const consumption = typeof item["Điện tiêu thụ (KWh)"] === 'number'
                 ? item["Điện tiêu thụ (KWh)"]
-                : parseFloat(item["Điện tiêu thụ (KWh)"] || 0);
+                : (item["Điện tiêu thụ (KWh)"]==null?null:parseFloat(item["Điện tiêu thụ (KWh)"]));
             consumptionData.push(consumption);
 
             // Tìm dữ liệu tiền điện tương ứng
@@ -65,8 +65,8 @@ class ChartManager {
             );
             const cost = correspondingCost
                 ? (typeof correspondingCost["Tiền Điện"] === 'number' ? correspondingCost["Tiền Điện"] : parseInt(correspondingCost["Tiền Điện"]))
-                : 0;
-            costData.push(cost);
+                : null;
+            costData.push(cost===null||Number.isNaN(cost)?null:cost);
 
             const itemYear = typeof item.Năm === 'number' ? item.Năm : parseInt(item.Năm, 10);
             const itemMonth = typeof item.Tháng === 'number' ? item.Tháng : parseInt(item.Tháng, 10);

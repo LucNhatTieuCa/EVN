@@ -2,7 +2,7 @@
 
 Source by SmartBlackHome - Custom by LucNhatTieuCa
 
-Phiên bản hiện tại: 2026.10.28.6; domain evn. Mã phiên bản này đã được kiểm tra trên Home Assistant 2026.10.2; gói không kèm dữ liệu vận hành.
+Phiên bản hiện tại: 2026.11.1.1; domain evn. Mã phiên bản này đã được kiểm tra trên Home Assistant 2026.10.2; gói không kèm dữ liệu vận hành.
 
 ## Trước khi upload
 
@@ -47,3 +47,10 @@ Dữ liệu lịch sử cập nhật lên sensor sau từng đợt, không chờ
 Đã qua33test ngoại tuyến, packagecheck, kiểm traCore/API/database/entityIDs và giao diện desktop/mobile trên HA2026.10.2. Các ảnh README vẫn là dữ liệu minh họa. Việc tải toàn bộ PDF phụ thuộc dữ liệu và giới hạn máy chủ; không coi khởi tạo hoàn tất khi còn tài liệu thiếu. Không phải bằng chứng kiểm thử mọi phiên bảnHA hoặc khôi phục backup.
 
 Khung tiến trình tự ẩn sau khi xử lý xong các dữ liệu có thể tải của mã đang xem; không ẩn khi đang tải, chờ lượt, tạm nghỉ hoặc chưa biết tổng. Các sensor chẩn đoán được giữ.
+
+
+## 2026.11.1.1
+
+Sửa Tổng Quan khi chuyển tháng: bổ sung tháng hiện tại theo giờ Việt Nam vào danh sách dù chưa có dữ liệu ngày, xác định Kỳ này bằng tháng/năm thay vì vị trí đầu danh sách. Giữ tháng trước từ dữ liệu ngày khi chưa có hóa đơn, phân biệt tạm tính với số hóa đơn chính thức và dữ liệu chưa có với0thật. Không dùng lại snapshotAPI tháng trước làm số tháng mới. Giữ năm lịch sử, hành vi bấm ô tháng và các khoảng dữ liệu trống trên biểu đồ.
+
+Thêm9ca kiểm thử JavaScript chạy trong bộ unittestCI, gồm ngày đầu tháng, chuyển năm, zero thật, dữ liệu thiếu/không đủ tháng, hóa đơn chính thức thay dự tính, timestampAPI cũ và múi giờ. Bản sửa không thay database, gốc công tơ, lịch truy vấn hoặc công thức tính tiền backend.

@@ -75,3 +75,8 @@ EVN Monitor có khung **Đồng bộ dữ liệu** riêng cho mã đang xem và 
 Mỗi mã có hai sensor chẩn đoán **Đồng bộ dữ liệu** và **Tiến độ tải PDF**. Thuộc tính ghi số đã lưu/còn thiếu, giai đoạn, lỗi và mốc thử lại. Dữ liệu lịch sử cập nhật lên sensor sau từng đợt, độc lập với quá trình tải PDF. Theo dõi tiến trình chỉ đọc SQLite tại HA, không tăng lượt truy vấn EVN; lịch truy vấn điện năng bốn giờ được giữ.
 
 Khung tiến trình tự ẩn khi mã đang xem đã hoàn tất xử lý dữ liệu có thể tải. Khung hiện lại khi có việc mới hoặc lỗi/tạm nghỉ; các sensor chẩn đoán vẫn được giữ. PDF nguồn không cung cấp vẫn được ghi riêng, không tính là đã tải.
+
+
+## Khi sang tháng mới
+
+Tổng Quan luôn nhận tháng hiện tại theo giờ Việt Nam, kể cả ngày đầu tháng EVN chưa trả dữ liệu ngày mới. Khi thiếu dữ liệu, ô Kỳ này ghi **Chờ EVN cập nhật**, không tự thay bằng0. Tháng trước vẫn được giữ; chưa có hóa đơn thì ghi rõ **Tạm tính · Chờ hóa đơn EVN**. Hóa đơn chính thức được ưu tiên khi đã có. Tiền tạm tính cho tháng cũ chỉ cộng từ phí từng ngày đã có nếu đủ mọi ngày trong tháng; thiếu ngày/đơn giá thì không dựng tiền cả tháng. Đổi năm hoặc chọn năm cũ không gắn nhầm tháng đầu danh sách thành kỳ hiện tại.

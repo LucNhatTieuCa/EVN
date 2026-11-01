@@ -188,6 +188,7 @@ class UIManager {
             const summaryDiv = document.createElement('div');
             summaryDiv.className = 'summary-month-card';
             summaryDiv.id = `summary-month-${index}`;
+            summaryDiv.dataset.monthYear=data.monthYear;
 
             // Determine trend color and symbol
             let trendSymbol = '—';
@@ -199,32 +200,33 @@ class UIManager {
                 trendSymbol = '▼';
                 trendClass = 'negative';
             } summaryDiv.innerHTML = `
-                <h4>${data.isCurrentPeriod ? 'Kỳ này' : `Tháng ${data.monthNum.toString().padStart(2, '0')}`}</h4>
+                <h4>${data.isCurrentPeriod ? 'Kỳ này · ' : 'Tháng '}${String(data.monthNum).padStart(2,'0')}/${data.monthYear.split('-')[1]}</h4>
+                <small class="summary-period-status">${data.periodStatus||''}</small>
                 <div class="summary-stat-inline">
                     <i class="fas fa-bolt text-yellow-400"></i>
                     <span>Tổng:</span>
-                    <strong>${data.totalConsumption.toFixed(1)}</strong>
-                    <span>kWh</span>
+                    <strong>${Number.isFinite(data.totalConsumption)?data.totalConsumption.toLocaleString('vi-VN',{maximumFractionDigits:2}):'Chờ EVN cập nhật'}</strong>
+                    <span>${Number.isFinite(data.totalConsumption)?'kWh':''}</span>
                 </div>
                 <div class="summary-stat-inline">
                     <i class="fas fa-coins text-green-400"></i>
-                    <span>Tiền:</span>
-                    <strong>${Number.isFinite(data.monthlyCost) && (data.isCurrentPeriod || data.hasOfficialBill !== false) ? data.monthlyCost.toLocaleString() : "Chưa có dữ liệu"}</strong>
-                    <span>VND</span>
+                    <span>${data.isEstimate?'Tiền dự tính:':'Tiền:'}</span>
+                    <strong>${Number.isFinite(data.monthlyCost) ? data.monthlyCost.toLocaleString() : (data.isCurrentPeriod?"Chờ EVN cập nhật":"Chờ hóa đơn EVN")}</strong>
+                    <span>${Number.isFinite(data.monthlyCost)?'VND':''}</span>
                 </div>                <div class="summary-stat-row">
                     <span class="min-value">
-                        Min: <i class="fas fa-arrow-down text-blue-500"></i><strong class="text-blue-500">${data.min.toFixed(1)}</strong>
+                        Min: <i class="fas fa-arrow-down text-blue-500"></i><strong class="text-blue-500">${Number.isFinite(data.min)?data.min.toFixed(1):"—"}</strong>
                     </span>
                     <span class="max-value">
-                        Max: <i class="fas fa-arrow-up text-red-500"></i><strong class="text-red-500">${data.max.toFixed(1)}</strong>
+                        Max: <i class="fas fa-arrow-up text-red-500"></i><strong class="text-red-500">${Number.isFinite(data.max)?data.max.toFixed(1):"—"}</strong>
                     </span>
                 </div>
                 <div class="summary-change ${trendClass}" style="display: flex; justify-content: space-between; align-items: center; font-size: min(0.85em, 3.2vw); margin-top: 4px;">
                     <span class="summary-trend" style="font-size: clamp(0.7em, 2vw, 1em);">
-                        ${trendSymbol} ${data.trendValue > 0 ? '+' : ''}${data.trendValue.toFixed(2)} (${data.trendPercent > 0 ? '+' : ''}${data.trendPercent.toFixed(1)}%)
+                        ${trendSymbol} ${data.trendValue > 0 ? '+' : ''}${Number.isFinite(data.trendValue)?data.trendValue.toFixed(2):"—"} (${data.trendPercent > 0 ? '+' : ''}${Number.isFinite(data.trendPercent)?data.trendPercent.toFixed(1):"—"}%)
                     </span>
                     <span class="summary-avg" style="color: var(--text-secondary); font-size: clamp(0.7em, 2vw, 1em);">
-                        Avg: <strong style="color: var(--text-primary);">${data.avg.toFixed(1)}</strong>
+                        Avg: <strong style="color: var(--text-primary);">${Number.isFinite(data.avg)?data.avg.toFixed(1):"—"}</strong>
                     </span>
                 </div>
             `;
